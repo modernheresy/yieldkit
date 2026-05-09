@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YieldKit — Property Deal Analyser</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;0,700;1,500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand:   { DEFAULT: '#1A3828', mid: '#2A5C42', light: '#3D8B63' },
+            gold:    { DEFAULT: '#BFA054', light: '#D4B878' },
+            cream:   { DEFAULT: '#F4F1EA', dark: '#EAE5DB' },
+            ink:     { DEFAULT: '#1A1A1A' },
+          },
+          fontFamily: {
+            display: ['"Cormorant"', 'serif'],
+            sans:    ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    .toggle-radio { display: none; }
+    .toggle-radio:checked + .toggle-lbl {
+      background: #1A3828;
+      color: #fff;
+      border-color: #1A3828;
+    }
+
+    .field-input {
+      width: 100%;
+      height: 48px;
+      border: 1.5px solid #DDD8CF;
+      border-radius: 10px;
+      background: #F4F1EA;
+      color: #1A1A1A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      transition: border-color .18s, background .18s;
+      padding: 0 14px;
+    }
+    .field-input:focus { outline: none; border-color: #1A3828; background: #fff; }
+    .has-pre .field-input { padding-left: 28px; }
+    .has-suf .field-input { padding-right: 36px; }
+
+    .sym {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      font-size: 14px; font-weight: 500; color: #9B9489;
+      pointer-events: none;
+    }
+    .sym-l { left: 13px; }
+    .sym-r { right: 13px; }
+
+    /* Animated number pop */
+    @keyframes numPop {
+      0%   { transform: translateY(6px); opacity: 0; }
+      100% { transform: translateY(0);   opacity: 1; }
+    }
+    .num-pop { animation: numPop .22s cubic-bezier(.22,1,.36,1) both; }
+
+    /* Yield bar */
+    .ybar-fill { transition: width .55s cubic-bezier(.4,0,.2,1), background .4s; }
+
+    /* Cashflow number */
+    .cf-num {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(54px, 14vw, 72px);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -1px;
+      transition: color .35s;
+    }
+
+    /* Section divider */
+    .sec-rule { border-top: 1px solid rgba(255,255,255,.1); }
+    .sec-rule-light { border-top: 1px solid #E5E0D6; }
+
+    /* Stamp duty box */
+    .sdlt-box {
+      background: #F0EDE5;
+      border: 1.5px solid #DDD8CF;
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    /* Custom checkbox */
+    .ck-wrap { display: flex; align-items: center; gap-6px; cursor: pointer; }
+    .ck-box {
+      width: 18px; height: 18px; flex-shrink: 0;
+      border: 1.5px solid #C4BEB4; border-radius: 5px;
+      background: #fff;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+    }
+    #sdltCheck:checked ~ .sdlt-box .ck-box,
+    .ck-checked { background: #1A3828; border-color: #1A3828; }
+    #sdltCheck { display: none; }
+  </style>
+</head>
+
+<body class="bg-cream min-h-screen py-8 px-4">
+<div class="max-w-[460px] mx-auto flex flex-col gap-3">
+
+  <!-- ─── Header ─── -->
+  <header class="flex items-center justify-between pb-5 border-b border-cream-dark">
+    <div class="font-display font-semibold text-[30px] leading-none text-brand tracking-tight">
+      Yield<span class="text-gold">Kit</span>
+    </div>
+    <div class="text-[11px] text-stone-400 tracking-wide">UK property deal analyser</div>
+  </header>
+
+  <!-- ─── Result Card ─── -->
+  <div class="relative rounded-2xl bg-brand overflow-hidden px-6 pt-6 pb-5 transition-all duration-500" id="card">
+
+    <!-- decorative rings -->
+    <div class="absolute -top-12 -right-12 w-44 h-44 rounded-full border border-white/5 pointer-events-none"></div>
+    <div class="absolute -top-6 -right-6 w-24 h-24 rounded-full border border-white/5 pointer-events-none"></div>
+    <div class="absolute -bottom-10 left-16 w-32 h-32 rounded-full bg-white/[.025] pointer-events-none"></div>
+
+    <!-- Verdict pill -->
+    <div id="verdict" class="inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-[1.8px] uppercase mb-3 transition-colors duration-300 text-gold">
+      ENTER DETAILS BELOW
+    </div>
+
+    <!-- Big cashflow -->
+    <div class="cf-num text-white/50" id="cfNum">£—</div>
+    <div class="flex items-center gap-2 mt-1 flex-wrap">
+      <div class="text-[11px] text-white/35 tracking-wide">pre-tax monthly cashflow</div>
+      <div class="text-[10px] text-gold/60 tracking-wide cursor-pointer hover:text-gold/90 transition-colors">After-tax with Pro ›</div>
+    </div>
+
+    <!-- Breakdown pills -->
+    <div class="flex flex-wrap gap-1.5 mt-4" id="pills"></div>
+
+    <!-- Yield strength bar -->
+    <div id="ybarWrap" class="mt-5 hidden">
+      <div class="flex justify-between text-[9px] tracking-wide mb-1.5 text-white/30 uppercase">
+        <span>Weak</span><span>Average</span><span>Good</span><span>Excellent</span>
+      </div>
+      <div class="h-1 rounded-full bg-white/10">
+        <div class="h-1 rounded-full ybar-fill" id="ybar" style="width:0%"></div>
+      </div>
+      <div class="text-[11px] mt-1.5 font-medium transition-colors" id="yRating" style="color:rgba(255,255,255,.4)"></div>
+    </div>
+
+    <!-- Meta row -->
+    <div class="grid grid-cols-3 mt-5 pt-5 sec-rule" id="metaRow">
+      <div>
+        <div class="text-sm font-semibold text-white" id="mAnnual">—</div>
+        <div class="text-[10px] mt-0.5 text-white/35">Annual</div>
+      </div>
+      <div class="text-center">
+        <div class="text-sm font-semibold text-white" id="mGross">—</div>
+        <div class="text-[10px] mt-0.5 text-white/35">Gross yield</div>
+      </div>
+      <div class="text-right">
+        <div class="text-sm font-semibold text-white" id="mNet">—</div>
+        <div class="text-[10px] mt-0.5 text-white/35">Net yield</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Form Card ─── -->
+  <div class="bg-white rounded-2xl border border-cream-dark px-5 pt-5 pb-6 shadow-sm">
+
+    <!-- Property section -->
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-3.5">Property</div>
+
+    <!-- Price -->
+    <div class="mb-3">
+      <label class="block text-xs font-medium text-stone-400 mb-1.5">Purchase price</label>
+      <div class="relative has-pre">
+        <span class="sym sym-l">£</span>
+        <input type="number" id="price" class="field-input" placeholder="250000">
+      </div>
+    </div>
+
+    <!-- Deposit + Rate -->
+    <div class="grid grid-cols-2 gap-2.5 mb-3">
+      <div>
+        <label class="block text-xs font-medium text-stone-400 mb-1.5">Deposit</label>
+        <div class="relative has-suf">
+          <input type="number" id="deposit" class="field-input" value="25">
+          <span class="sym sym-r">%</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-stone-400 mb-1.5">Interest rate</label>
+        <div class="relative has-suf">
+          <input type="number" id="rate" class="field-input" value="5.0" step="0.1">
+          <span class="sym sym-r">%</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mortgage type -->
+    <div class="mb-4">
+      <label class="block text-xs font-medium text-stone-400 mb-1.5">Mortgage type</label>
+      <div class="grid grid-cols-2 gap-2">
+        <input type="radio" name="mtype" id="io" value="interest" class="toggle-radio" checked>
+        <label for="io" class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[13px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150">
+          Interest only
+        </label>
+        <input type="radio" name="mtype" id="rep" value="repayment" class="toggle-radio">
+        <label for="rep" class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[13px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150">
+          Repayment
+        </label>
+      </div>
+    </div>
+
+    <!-- Divider -->
+    <div class="sec-rule-light my-4"></div>
+
+    <!-- Stamp Duty -->
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-3.5">Stamp Duty (BTL)</div>
+    <div class="sdlt-box mb-4" id="sdltBox">
+      <div>
+        <div class="text-[11px] text-stone-400 mb-0.5">Calculated automatically</div>
+        <div class="text-[15px] font-semibold text-ink" id="sdltAmt">Enter price above</div>
+      </div>
+      <label class="flex items-center gap-2 cursor-pointer select-none shrink-0">
+        <input type="checkbox" id="sdltCheck" onchange="calc()">
+        <div class="ck-box" id="ckBox">
+          <svg id="ckTick" width="10" height="8" viewBox="0 0 10 8" fill="none" style="display:none">
+            <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <div class="text-[12px] font-medium text-stone-500 leading-tight">Add to<br>mortgage</div>
+      </label>
+    </div>
+
+    <div class="sec-rule-light my-4"></div>
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-3.5">Income & Costs</div>
+
+    <!-- Rent -->
+    <div class="mb-3">
+      <label class="block text-xs font-medium text-stone-400 mb-1.5">Monthly rent</label>
+      <div class="relative has-pre">
+        <span class="sym sym-l">£</span>
+        <input type="number" id="rent" class="field-input" placeholder="1200">
+      </div>
+    </div>
+
+    <!-- Agent + Void -->
+    <div class="grid grid-cols-2 gap-2.5 mb-3">
+      <div>
+        <label class="block text-xs font-medium text-stone-400 mb-1.5">Agent fee</label>
+        <div class="relative has-suf">
+          <input type="number" id="agent" class="field-input" value="10">
+          <span class="sym sym-r">%</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-stone-400 mb-1.5">Void weeks/yr</label>
+        <div class="relative has-suf">
+          <input type="number" id="void" class="field-input" value="2">
+          <span class="sym sym-r">wk</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Other costs -->
+    <div class="mb-1">
+      <label class="block text-xs font-medium text-stone-400 mb-1.5">Other monthly costs</label>
+      <div class="relative has-pre">
+        <span class="sym sym-l">£</span>
+        <input type="number" id="costs" class="field-input" value="150">
+      </div>
+      <div class="text-[10px] text-stone-300 mt-1.5 leading-relaxed">
+        Insurance, maintenance, ground rent, service charges, etc.
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <button onclick="calc()"
+      class="w-full h-[50px] rounded-[10px] bg-brand text-white text-[14px] font-semibold mt-5 tracking-wide hover:bg-brand-mid active:scale-[.99] transition-all duration-150">
+      Analyse Deal
+    </button>
+
+  </div>
+
+</div><!-- /container -->
+
+<script>
+  const $ = id => document.getElementById(id);
+  const fmt = n => {
+    const abs = '£' + Math.abs(Math.round(n)).toLocaleString('en-GB');
+    return n < 0 ? '−' + abs : abs;
+  };
+
+  function calcSDLT(price) {
+    if (!price) return 0;
+    let sdlt = 0;
+    if (price <= 250000)        sdlt = price * 0.05;
+    else if (price <= 925000)   sdlt = 250000*0.05 + (price-250000)*0.10;
+    else if (price <= 1500000)  sdlt = 250000*0.05 + 675000*0.10 + (price-925000)*0.15;
+    else                        sdlt = 250000*0.05 + 675000*0.10 + 575000*0.15 + (price-1500000)*0.17;
+    return sdlt;
+  }
+
+  // Sync checkbox visual
+  document.getElementById('sdltCheck').addEventListener('change', function() {
+    document.getElementById('ckBox').style.background    = this.checked ? '#1A3828' : '#fff';
+    document.getElementById('ckBox').style.borderColor   = this.checked ? '#1A3828' : '#C4BEB4';
+    document.getElementById('ckTick').style.display      = this.checked ? 'block'   : 'none';
+  });
+
+  function yieldMeta(y) {
+    if (y < 4)  return { label:'Weak deal',      pct: Math.max(y/4*20, 2),          col:'#ef4444' };
+    if (y < 6)  return { label:'Below average',  pct: 20 + (y-4)/2*20,              col:'#f97316' };
+    if (y < 8)  return { label:'Average yield',  pct: 40 + (y-6)/2*20,              col:'#eab308' };
+    if (y < 10) return { label:'Good yield',     pct: 60 + (y-8)/2*20,              col:'#22c55e' };
+    return              { label:'Excellent yield',pct: Math.min(80+(y-10)*4,100),    col:'#10b981' };
+  }
+
+  function pill(lbl, val) {
+    return `<span style="background:rgba(255,255,255,.08);border-radius:20px;padding:3px 11px;font-size:11px;color:rgba(255,255,255,.5)">
+      ${lbl} <b style="color:rgba(255,255,255,.82);font-weight:600">${val}</b>
+    </span>`;
+  }
+
+  function calc() {
+    const price   = +$('price').value   || 0;
+    const deposit = +$('deposit').value || 25;
+    const rate    = +$('rate').value    || 5;
+    const rent    = +$('rent').value    || 0;
+    const agent   = +$('agent').value   || 0;
+    const voidWks = +$('void').value    || 0;
+    const costs   = +$('costs').value   || 0;
+    const type    = document.querySelector('input[name="mtype"]:checked').value;
+    const addSDLT = $('sdltCheck').checked;
+
+    // Stamp duty
+    const sdlt = calcSDLT(price);
+    $('sdltAmt').textContent = price ? fmt(sdlt) + ' due on completion' : 'Enter price above';
+
+    if (!price || !rent) return;
+
+    const depositAmt = price * deposit / 100;
+    const baseLoan   = price - depositAmt;
+    const loan       = addSDLT ? baseLoan + sdlt : baseLoan;
+    const mr         = rate / 100 / 12;
+    const mtg        = type === 'interest'
+      ? loan * mr
+      : (() => { const n=300; return loan*(mr*Math.pow(1+mr,n))/(Math.pow(1+mr,n)-1); })();
+
+    const agentAmt  = rent * agent / 100;
+    const voidAmt   = rent * voidWks / 52;
+    const totalCost = mtg + agentAmt + voidAmt + costs;
+    const monthly   = rent - totalCost;
+    const annual    = monthly * 12;
+    const gross     = rent * 12 / price * 100;
+    const net       = (rent*12 - (agentAmt+voidAmt+costs)*12) / price * 100;
+    const cashIn    = depositAmt + (addSDLT ? 0 : sdlt);
+    const pos       = monthly >= 0;
+
+    // verdict
+    const vEl = $('verdict');
+    vEl.textContent = pos ? '✓ POSITIVE CASHFLOW' : '✗ NEGATIVE CASHFLOW';
+    vEl.style.color = pos ? '#86efac' : '#fca5a5';
+
+    // cashflow number
+    const cfEl = $('cfNum');
+    cfEl.classList.remove('num-pop');
+    void cfEl.offsetWidth;
+    cfEl.classList.add('num-pop');
+    cfEl.textContent = fmt(monthly) + '/mo';
+    cfEl.style.color = pos ? '#86efac' : '#fca5a5';
+
+    // meta
+    $('mAnnual').textContent = fmt(annual);
+    $('mGross').textContent  = gross.toFixed(1) + '%';
+    $('mNet').textContent    = net.toFixed(1) + '%';
+
+    // pills
+    $('pills').innerHTML =
+      pill('Mortgage', fmt(mtg)+'/mo') +
+      pill('Cash in', fmt(cashIn)) +
+      pill('SDLT', fmt(sdlt)) +
+      pill('LTV', (loan/price*100).toFixed(0)+'%');
+
+    // yield bar
+    const ym = yieldMeta(net);
+    $('ybarWrap').classList.remove('hidden');
+    $('ybar').style.width      = ym.pct + '%';
+    $('ybar').style.background = ym.col;
+    $('yRating').style.color   = ym.col;
+    $('yRating').textContent   = ym.label + ' · ' + net.toFixed(2) + '% net yield';
+  }
+
+  document.querySelectorAll('input').forEach(el => el.addEventListener('input', calc));
+  // Show SDLT as soon as price is typed, before rent is entered
+  $('price').addEventListener('input', () => {
+    const p = +$('price').value || 0;
+    $('sdltAmt').textContent = p ? fmt(calcSDLT(p)) + ' due on completion' : 'Enter price above';
+  });
+</script>
+</body>
+</html>

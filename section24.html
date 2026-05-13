@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bricklio — Section 24 Analysis</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,500;0,600;0,700;1,500&family=Plus Jakarta Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand:   { DEFAULT: '#1A3828', mid: '#2A5C42', light: '#3D8B63' },
+            gold:    { DEFAULT: '#BFA054', light: '#D4B878' },
+            cream:   { DEFAULT: '#F4F1EA', dark: '#EAE5DB' },
+            ink:     { DEFAULT: '#1A1A1A' },
+          },
+          fontFamily: {
+            display: ['"Cormorant"', 'serif'],
+            sans:    ['"Plus Jakarta Sans"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+    input[type=number]::-webkit-inner-spin-button,
+    input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+    input[type=number] { -moz-appearance: textfield; }
+
+    .toggle-radio { display: none; }
+    .toggle-radio:checked + .toggle-lbl {
+      background: #1A3828;
+      color: #fff;
+      border-color: #1A3828;
+    }
+
+    .field-input {
+      width: 100%;
+      height: 48px;
+      border: 1.5px solid #DDD8CF;
+      border-radius: 10px;
+      background: #F4F1EA;
+      color: #1A1A1A;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px;
+      font-weight: 500;
+      transition: border-color .18s, background .18s;
+      padding: 0 14px;
+    }
+    .field-input:focus { outline: none; border-color: #1A3828; background: #fff; }
+    .has-pre .field-input { padding-left: 28px; }
+
+    .sym {
+      position: absolute;
+      top: 50%; transform: translateY(-50%);
+      font-size: 14px; font-weight: 500; color: #9B9489;
+      pointer-events: none;
+    }
+    .sym-l { left: 13px; }
+
+    @keyframes numPop {
+      0%   { transform: translateY(6px); opacity: 0; }
+      100% { transform: translateY(0);   opacity: 1; }
+    }
+    .num-pop { animation: numPop .22s cubic-bezier(.22,1,.36,1) both; }
+
+    .cf-num {
+      font-family: 'Cormorant', serif;
+      font-size: clamp(44px, 12vw, 60px);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -1px;
+      transition: color .35s;
+    }
+
+    .sec-rule       { border-top: 1px solid rgba(255,255,255,.1); }
+    .sec-rule-light { border-top: 1px solid #E5E0D6; }
+
+    /* Income mode toggle */
+    .mode-tab {
+      flex: 1;
+      height: 36px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #9B9489;
+      cursor: pointer;
+      transition: all .15s;
+      display: flex; align-items: center; justify-content: center;
+      border: 1.5px solid transparent;
+    }
+    .mode-tab.active {
+      background: #1A3828;
+      color: #fff;
+      border-color: #1A3828;
+    }
+
+    /* Warning banners */
+    .banner {
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 12px;
+      line-height: 1.55;
+      display: none;
+    }
+    .banner.visible { display: block; }
+    .banner-red    { background: #FEF2F2; border: 1.5px solid #FECACA; color: #991B1B; }
+    .banner-amber  { background: #FFFBEB; border: 1.5px solid #FDE68A; color: #92400E; }
+    .banner-green  { background: #F0FDF4; border: 1.5px solid #BBF7D0; color: #166534; }
+    .banner-slate  { background: #F8FAFC; border: 1.5px solid #E2E8F0; color: #475569; }
+
+    /* Result card row */
+    .cf-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .cf-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      font-weight: 600;
+    }
+
+    /* Comparison divider */
+    .vs-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      background: rgba(255,255,255,.08);
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,.3);
+      flex-shrink: 0;
+    }
+
+    .saving-bar {
+      height: 3px;
+      border-radius: 99px;
+      background: rgba(255,255,255,.1);
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    .saving-bar-fill {
+      height: 100%;
+      border-radius: 99px;
+      transition: width .55s cubic-bezier(.4,0,.2,1), background .4s;
+    }
+
+    /* Disabled toggle label */
+    .toggle-lbl-disabled {
+      opacity: .38;
+      cursor: not-allowed;
+    }
+
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-in { animation: fadeSlideIn .25s ease both; }
+
+    #saveBtn.loading { opacity: .6; pointer-events: none; }
+  </style>
+</head>
+
+<body class="bg-cream min-h-screen py-8 px-4">
+<div class="max-w-[460px] mx-auto flex flex-col gap-3">
+
+  <!-- ─── Header ─── -->
+  <header class="flex items-center justify-between pb-5 border-b border-cream-dark">
+    <a href="/" class="flex items-center gap-2.5 select-none">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="2"  y="2"  width="11" height="6" rx="1.5" fill="#1A3828"/>
+        <rect x="15" y="2"  width="11" height="6" rx="1.5" fill="#1A3828" opacity=".55"/>
+        <rect x="7"  y="11" width="11" height="6" rx="1.5" fill="#1A3828"/>
+        <rect x="2"  y="11" width="3"  height="6" rx="1.5" fill="#1A3828" opacity=".35"/>
+        <rect x="20" y="11" width="6"  height="6" rx="1.5" fill="#1A3828" opacity=".35"/>
+        <rect x="2"  y="20" width="11" height="6" rx="1.5" fill="#1A3828" opacity=".7"/>
+        <rect x="15" y="20" width="11" height="6" rx="1.5" fill="#1A3828"/>
+      </svg>
+      <span class="font-display font-semibold text-[28px] leading-none text-brand tracking-tight">Bricklio</span>
+    </a>
+    <a href="/"
+      class="flex items-center gap-1.5 px-3 h-8 rounded-lg border border-brand/20 bg-brand/5 hover:bg-brand/10 text-brand text-[11px] font-semibold tracking-wide transition-colors">
+      <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+        <path d="M7.5 2L3.5 6L7.5 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Back to calculator
+    </a>
+  </header>
+
+  <!-- ─── Page title ─── -->
+  <div class="pt-1 pb-1">
+    <h1 class="font-display text-[32px] font-semibold text-brand leading-tight tracking-tight">Section 24 Analysis</h1>
+    <p class="text-[13px] text-stone-400 mt-1 leading-relaxed">
+      See your real after-tax cashflow. Section 24 restricts mortgage interest relief for individual landlords to a flat 20% credit — significantly impacting higher and additional rate taxpayers.
+    </p>
+  </div>
+
+  <!-- ─── No calc data notice ─── -->
+  <div id="noCalcNotice" class="hidden bg-white rounded-2xl border border-cream-dark px-5 py-5 shadow-sm">
+    <div class="flex items-start gap-3">
+      <div class="text-xl mt-0.5">🏠</div>
+      <div>
+        <div class="text-[14px] font-semibold text-ink mb-1">No deal to analyse yet</div>
+        <p class="text-[12px] text-stone-400 leading-relaxed mb-3">Go back to the calculator, enter a property's details and click Analyse Deal — then return here to see your after-tax result.</p>
+        <a href="/" class="inline-flex items-center gap-1.5 text-[12px] font-semibold text-brand hover:text-brand-mid transition-colors">
+          <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
+            <path d="M7.5 2L3.5 6L7.5 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Back to calculator
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Result Card ─── -->
+  <div id="resultCard" class="hidden relative rounded-2xl bg-brand overflow-hidden px-6 pt-6 pb-5 fade-in">
+    <!-- Background decoration -->
+    <div class="absolute -top-12 -right-12 w-44 h-44 rounded-full border border-white/5 pointer-events-none"></div>
+    <div class="absolute -top-6 -right-6 w-24 h-24 rounded-full border border-white/5 pointer-events-none"></div>
+    <div class="absolute -bottom-10 left-16 w-32 h-32 rounded-full bg-white/[.025] pointer-events-none"></div>
+
+    <!-- Incomplete form state -->
+    <div id="resultIncomplete">
+      <div class="text-[10px] font-semibold tracking-[1.8px] uppercase mb-3 text-gold">COMPLETE YOUR TAX PROFILE</div>
+      <div class="cf-num text-white/30">£—</div>
+      <div class="text-[11px] text-white/30 mt-1 tracking-wide">after-tax monthly cashflow</div>
+      <div class="text-[11px] text-white/20 mt-3">Fill in the form below to see your S24 result.</div>
+    </div>
+
+    <!-- Complete result state -->
+    <div id="resultComplete" class="hidden">
+
+      <!-- Neutral (basic rate) -->
+      <div id="resultNeutral" class="hidden">
+        <div class="text-[10px] font-semibold tracking-[1.8px] uppercase mb-3 text-green-300">S24 NEUTRAL FOR YOU</div>
+        <div class="cf-num num-pop" id="cfAfterTax" style="color:#86efac">£—</div>
+        <div class="text-[11px] text-white/40 mt-1 tracking-wide">after-tax monthly cashflow</div>
+        <p class="text-[11px] text-white/30 mt-3 leading-relaxed">
+          As a basic rate taxpayer, Section 24 doesn't change your position — you received 20% relief before, and you receive a 20% credit now. The figures below are identical to your pre-tax cashflow.
+        </p>
+      </div>
+
+      <!-- Impacted (higher / additional rate) -->
+      <div id="resultImpacted" class="hidden">
+        <div class="text-[10px] font-semibold tracking-[1.8px] uppercase mb-2 transition-colors" id="resultVerdict" style="color:#fca5a5">S24 IMPACT</div>
+
+        <!-- Pre-tax vs After-tax comparison -->
+        <div class="flex items-center gap-3">
+          <div class="cf-row flex-1">
+            <div class="cf-label" style="color:rgba(255,255,255,.3)">Pre-tax</div>
+            <div class="font-display font-bold text-white/40 leading-none" style="font-size:clamp(22px,6vw,28px)" id="cfPreTax">£—</div>
+          </div>
+          <div class="vs-pill">→</div>
+          <div class="cf-row flex-1">
+            <div class="cf-label" id="afterTaxLabel" style="color:rgba(255,255,255,.4)">After S24</div>
+            <div class="cf-num num-pop" id="cfAfterTaxImpacted" style="color:#fca5a5">£—</div>
+          </div>
+        </div>
+
+        <!-- S24 cost bar -->
+        <div id="s24CostRow" class="mt-4">
+          <div class="flex justify-between items-center text-[10px] mb-1">
+            <span style="color:rgba(255,255,255,.3)">S24 monthly cost</span>
+            <span id="s24MonthlyCost" class="font-semibold" style="color:#fca5a5">—</span>
+          </div>
+          <div class="saving-bar">
+            <div class="saving-bar-fill" id="s24Bar" style="width:0%;background:#fca5a5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats row — both variants -->
+      <div class="grid grid-cols-3 mt-5 pt-5 sec-rule">
+        <div>
+          <div class="text-sm font-semibold text-white" id="statAnnualTax">—</div>
+          <div class="text-[10px] mt-0.5 text-white/35">Annual tax</div>
+        </div>
+        <div class="text-center">
+          <div class="text-sm font-semibold text-white" id="statExtraTax">—</div>
+          <div class="text-[10px] mt-0.5 text-white/35">S24 extra tax</div>
+        </div>
+        <div class="text-right">
+          <div class="text-sm font-semibold text-white" id="statAnnualAfter">—</div>
+          <div class="text-[10px] mt-0.5 text-white/35">Annual (after S24)</div>
+        </div>
+      </div>
+
+      <!-- Range caveat -->
+      <div id="rangeCaveat" class="hidden mt-3 text-[10px] leading-relaxed" style="color:rgba(255,255,255,.25)">
+        ⚠ Estimated range based on income band. For a precise figure, enter your exact annual income.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ─── Form Card ─── -->
+  <div class="bg-white rounded-2xl border border-cream-dark px-5 pt-5 pb-6 shadow-sm">
+
+    <!-- Ownership structure -->
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-3.5">Ownership</div>
+    <div class="grid grid-cols-2 gap-2 mb-4">
+      <input type="radio" name="ownership" id="own-individual" value="individual" class="toggle-radio" checked>
+      <label for="own-individual" class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[13px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150">
+        Individual
+      </label>
+      <div class="relative">
+        <input type="radio" name="ownership" id="own-ltd" value="ltd" class="toggle-radio" disabled>
+        <label for="own-ltd" class="toggle-lbl toggle-lbl-disabled flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[13px] font-medium text-stone-400 select-none">
+          Ltd company
+        </label>
+      </div>
+    </div>
+    <div class="banner banner-slate visible mb-4" id="ltdNote">
+      <strong>Ltd companies are not subject to Section 24.</strong> If you hold properties in a limited company, S24 doesn't apply — mortgage interest remains fully deductible. Speak to an accountant about whether incorporation is right for you.
+    </div>
+
+    <div class="sec-rule-light my-4"></div>
+
+    <!-- Tax band -->
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-3.5">Your Tax Band</div>
+    <div class="grid grid-cols-3 gap-2 mb-1">
+      <input type="radio" name="taxband" id="band-basic" value="basic" class="toggle-radio">
+      <label for="band-basic" class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[13px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150 text-center leading-tight px-1">
+        Basic<br><span class="text-[10px]">20%</span>
+      </label>
+      <input type="radio" name="taxband" id="band-higher" value="higher" class="toggle-radio">
+      <label for="band-higher" class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[13px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150 text-center leading-tight px-1">
+        Higher<br><span class="text-[10px]">40%</span>
+      </label>
+      <input type="radio" name="taxband" id="band-additional" value="additional" class="toggle-radio">
+      <label for="band-additional" class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[13px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150 text-center leading-tight px-1">
+        Additional<br><span class="text-[10px]">45%</span>
+      </label>
+    </div>
+    <div class="text-[10px] text-stone-300 mt-1.5 leading-relaxed mb-4">
+      Your marginal rate on rental income. If unsure, check your most recent tax return or P60.
+    </div>
+
+    <div class="sec-rule-light my-4"></div>
+
+    <!-- Other income -->
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-3.5">Other Annual Income</div>
+    <div class="text-[11px] text-stone-400 mb-3 leading-relaxed">
+      Salary, pension, or other taxable income — excluding this rental property.
+    </div>
+
+    <!-- Mode toggle -->
+    <div class="flex gap-1 bg-cream rounded-[10px] p-1 mb-3" id="modeToggle">
+      <button type="button" id="modeExact" class="mode-tab active" onclick="setIncomeMode('exact')">Exact amount</button>
+      <button type="button" id="modeBand"  class="mode-tab"        onclick="setIncomeMode('band')">Income band</button>
+    </div>
+
+    <!-- Exact input -->
+    <div id="incomeExactWrap">
+      <div class="relative has-pre">
+        <span class="sym sym-l">£</span>
+        <input type="number" id="incomeExact" class="field-input" placeholder="45000" oninput="recalc()">
+      </div>
+    </div>
+
+    <!-- Band selector -->
+    <div id="incomeBandWrap" class="hidden">
+      <div class="grid grid-cols-3 gap-2">
+        <input type="radio" name="incomeband" id="ib-low"  value="25000"  class="toggle-radio">
+        <label for="ib-low"  class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[11px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150 text-center leading-tight px-1">
+          Under<br>£50k
+        </label>
+        <input type="radio" name="incomeband" id="ib-mid"  value="75000"  class="toggle-radio">
+        <label for="ib-mid"  class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[11px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150 text-center leading-tight px-1">
+          £50k –<br>£100k
+        </label>
+        <input type="radio" name="incomeband" id="ib-high" value="150000" class="toggle-radio">
+        <label for="ib-high" class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[11px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150 text-center leading-tight px-1">
+          Over<br>£100k
+        </label>
+      </div>
+    </div>
+
+    <!-- Banners -->
+    <div class="mt-4 flex flex-col gap-2.5">
+      <div class="banner banner-red"   id="bannerHighImpact"></div>
+      <div class="banner banner-amber" id="bannerModImpact"></div>
+      <div class="banner banner-green" id="bannerNeutral">
+        <strong>Good news:</strong> As a basic rate taxpayer, Section 24 is neutral for you. You received 20% mortgage interest relief before S24, and you receive a 20% credit now — the maths is the same.
+      </div>
+      <div class="banner banner-slate" id="bannerBandNote">
+        ⚠ <strong>Estimated range.</strong> Because you've selected an income band rather than an exact figure, the result above shows a range. Enter your exact income above for a precise figure.
+      </div>
+    </div>
+
+    <div class="sec-rule-light my-5"></div>
+
+    <!-- Save button -->
+    <button onclick="saveProfile()" id="saveBtn"
+      class="w-full h-[50px] rounded-[10px] bg-brand text-white text-[14px] font-semibold tracking-wide hover:bg-brand-mid active:scale-[.99] transition-all duration-150">
+      Save & Return to Calculator
+    </button>
+    <div class="text-[10px] text-stone-300 text-center mt-2 leading-relaxed">
+      Your tax profile is saved to your account and used across all deal analyses.
+    </div>
+
+  </div>
+
+</div><!-- /container -->
+
+<script src="section24.js"></script>
+<script>
+  const $ = id => document.getElementById(id);
+  const AUTH = '';
+
+  let currentUser  = null;
+  let calcState    = null;   // from localStorage bk_calc
+  let incomeMode   = 'exact';  // 'exact' | 'band'
+
+  const fmtCf = n => {
+    const abs = '£' + Math.abs(Math.round(n)).toLocaleString('en-GB');
+    return n < 0 ? '−' + abs : abs;
+  };
+
+  const fmtAbs = n => '£' + Math.abs(Math.round(n)).toLocaleString('en-GB');
+
+  // ─── Init ───────────────────────────────────────────────────────────────────
+  async function init() {
+    // Auth check — redirect to home if not logged in
+    try {
+      const res = await fetch(`${AUTH}/api/auth/me`, { credentials: 'include' });
+      if (!res.ok) { window.location.href = '/'; return; }
+      const { user } = await res.json();
+      currentUser = user;
+    } catch (e) {
+      window.location.href = '/';
+      return;
+    }
+
+    // Load calculator state from localStorage
+    try {
+      const raw = localStorage.getItem('bk_calc');
+      if (raw) calcState = JSON.parse(raw);
+    } catch (e) {}
+
+    if (!calcState) {
+      $('noCalcNotice').classList.remove('hidden');
+    } else {
+      $('resultCard').classList.remove('hidden');
+    }
+
+    // Load existing tax profile and pre-fill form
+    try {
+      const res = await fetch(`${AUTH}/api/user/profile`, { credentials: 'include' });
+      if (res.ok) {
+        const { profile } = await res.json();
+        if (profile) prefillForm(profile);
+      }
+    } catch (e) {}
+
+    // Wire up all inputs
+    document.querySelectorAll('input[name="taxband"], input[name="incomeband"]')
+      .forEach(el => el.addEventListener('change', recalc));
+    $('incomeExact').addEventListener('input', recalc);
+
+    recalc();
+  }
+
+  // ─── Prefill form from saved profile ────────────────────────────────────────
+  function prefillForm(profile) {
+    // Tax band
+    if (profile.tax_band) {
+      const el = document.querySelector(`input[name="taxband"][value="${profile.tax_band}"]`);
+      if (el) el.checked = true;
+    }
+
+    // Income mode + value
+    if (profile.income_is_band && profile.other_annual_income != null) {
+      setIncomeMode('band');
+      const el = document.querySelector(`input[name="incomeband"][value="${Math.round(profile.other_annual_income)}"]`);
+      if (el) el.checked = true;
+    } else if (profile.other_annual_income != null) {
+      setIncomeMode('exact');
+      $('incomeExact').value = Math.round(profile.other_annual_income);
+    }
+  }
+
+  // ─── Income mode toggle ──────────────────────────────────────────────────────
+  function setIncomeMode(mode) {
+    incomeMode = mode;
+    $('modeExact').classList.toggle('active', mode === 'exact');
+    $('modeBand').classList.toggle('active',  mode === 'band');
+    $('incomeExactWrap').classList.toggle('hidden', mode !== 'exact');
+    $('incomeBandWrap').classList.toggle('hidden',  mode !== 'band');
+    recalc();
+  }
+
+  // ─── Read current form values ────────────────────────────────────────────────
+  function getProfile() {
+    const taxBandEl = document.querySelector('input[name="taxband"]:checked');
+    if (!taxBandEl) return null;
+
+    const taxBand = taxBandEl.value;
+
+    if (incomeMode === 'exact') {
+      const val = parseFloat($('incomeExact').value);
+      if (isNaN(val) || val < 0) return null;
+      return { tax_band: taxBand, other_annual_income: val, income_is_band: false, ownership_structure: 'individual' };
+    } else {
+      const bandEl = document.querySelector('input[name="incomeband"]:checked');
+      if (!bandEl) return null;
+      return { tax_band: taxBand, other_annual_income: parseFloat(bandEl.value), income_is_band: true, ownership_structure: 'individual' };
+    }
+  }
+
+  // ─── Live recalculation ──────────────────────────────────────────────────────
+  function recalc() {
+    hideBanners();
+
+    if (!calcState) return;
+
+    const profile = getProfile();
+
+    // Show incomplete state if form not ready
+    if (!profile) {
+      $('resultIncomplete').classList.remove('hidden');
+      $('resultComplete').classList.add('hidden');
+      return;
+    }
+
+    const result = S24.calculate(profile, calcState);
+    if (!result) return;
+
+    $('resultIncomplete').classList.add('hidden');
+    $('resultComplete').classList.remove('hidden');
+
+    renderResult(result, profile);
+  }
+
+  // ─── Render result card ──────────────────────────────────────────────────────
+  function renderResult(result, profile) {
+    const isRange = result.isRange;
+
+    // Stats row (always shown)
+    if (isRange) {
+      $('statAnnualTax').textContent   = fmtAbs(result.annualTaxLow)  + '–' + fmtAbs(result.annualTaxHigh);
+      $('statExtraTax').textContent    = fmtAbs(result.s24ExtraTaxLow) + '–' + fmtAbs(result.s24ExtraTaxHigh);
+      $('statAnnualAfter').textContent = fmtCf(result.afterTaxAnnualLow) + ' – ' + fmtCf(result.afterTaxAnnualHigh);
+      $('rangeCaveat').classList.remove('hidden');
+    } else {
+      $('statAnnualTax').textContent   = fmtAbs(result.annualTax);
+      $('statExtraTax').textContent    = fmtAbs(result.s24ExtraTax);
+      $('statAnnualAfter').textContent = fmtCf(result.afterTaxAnnual);
+      $('rangeCaveat').classList.add('hidden');
+    }
+
+    // Which variant to show
+    if (result.isNeutral) {
+      $('resultNeutral').classList.remove('hidden');
+      $('resultImpacted').classList.add('hidden');
+
+      const val = isRange ? result.afterTaxMonthlyHigh : result.afterTaxMonthly;
+      animateCf($('cfAfterTax'), val);
+
+      showBanner($('bannerNeutral'));
+      if (isRange) showBanner($('bannerBandNote'));
+
+    } else {
+      $('resultNeutral').classList.add('hidden');
+      $('resultImpacted').classList.remove('hidden');
+
+      // Pre-tax from calc state
+      $('cfPreTax').textContent = fmtCf(calcState.monthly) + '/mo';
+
+      // After-tax (range or single)
+      const afterLow  = isRange ? result.afterTaxMonthlyLow  : result.afterTaxMonthly;
+      const afterHigh = isRange ? result.afterTaxMonthlyHigh : result.afterTaxMonthly;
+      const afterDisplay = afterLow === afterHigh ? afterLow : afterLow;
+
+      animateCf($('cfAfterTaxImpacted'), afterDisplay);
+
+      // Colour by outcome
+      const pos = afterDisplay >= 0;
+      const col = pos ? '#86efac' : '#fca5a5';
+      $('cfAfterTaxImpacted').style.color = col;
+      $('resultVerdict').style.color = pos ? '#86efac' : '#fca5a5';
+      $('resultVerdict').textContent = pos ? '✓ POSITIVE AFTER TAX' : '✗ NEGATIVE AFTER TAX';
+
+      // S24 cost bar
+      const monthlyCost = isRange ? result.worstCase.monthlyTax : result.monthlyTax;
+      $('s24MonthlyCost').textContent = '−' + fmtAbs(monthlyCost) + '/mo';
+      $('s24MonthlyCost').style.color = col;
+
+      // Bar: proportion of pre-tax cashflow eaten by S24 tax
+      const preTax = Math.abs(calcState.monthly) || 1;
+      const pct = Math.min(100, (monthlyCost / (preTax + monthlyCost)) * 100);
+      $('s24Bar').style.width      = pct + '%';
+      $('s24Bar').style.background = '#fca5a5';
+
+      if (isRange) showBanner($('bannerBandNote'));
+
+      // Impact banners
+      const extraMonthly = isRange ? result.worstCase.s24ExtraMonthly : result.s24ExtraMonthly;
+      if (extraMonthly > 200) {
+        $('bannerHighImpact').innerHTML =
+          `<strong>High S24 impact.</strong> Section 24 is costing you an estimated <strong>${fmtAbs(extraMonthly * 12)}/year</strong> in additional tax compared to pre-S24 rules. A deal that looks profitable before tax may not be viable after it.`;
+        showBanner($('bannerHighImpact'));
+      } else if (extraMonthly > 50) {
+        $('bannerModImpact').innerHTML =
+          `<strong>S24 is reducing your returns.</strong> You're paying an estimated <strong>${fmtAbs(extraMonthly * 12)}/year</strong> more in tax than pre-S24 rules would have applied.`;
+        showBanner($('bannerModImpact'));
+      }
+    }
+  }
+
+  function animateCf(el, val) {
+    el.classList.remove('num-pop');
+    void el.offsetWidth;
+    el.classList.add('num-pop');
+    el.textContent = fmtCf(val) + '/mo';
+  }
+
+  function hideBanners() {
+    [$('bannerHighImpact'), $('bannerModImpact'), $('bannerNeutral'), $('bannerBandNote')]
+      .forEach(b => b.classList.remove('visible'));
+  }
+
+  function showBanner(el) {
+    el.classList.add('visible');
+  }
+
+  // ─── Save profile ────────────────────────────────────────────────────────────
+  async function saveProfile() {
+    const profile = getProfile();
+
+    if (!profile) {
+      // Highlight what's missing
+      if (!document.querySelector('input[name="taxband"]:checked')) {
+        document.querySelectorAll('label[for^="band-"]').forEach(l => {
+          l.style.borderColor = '#fca5a5';
+          setTimeout(() => l.style.borderColor = '', 1500);
+        });
+      }
+      return;
+    }
+
+    $('saveBtn').classList.add('loading');
+    $('saveBtn').textContent = 'Saving…';
+
+    try {
+      const res = await fetch(`${AUTH}/api/user/profile`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(profile),
+      });
+
+      if (res.ok) {
+        // Signal to main page that a fresh profile is available
+        localStorage.setItem('bk_s24_return', '1');
+        window.location.href = '/';
+      } else {
+        alert('Could not save profile. Please try again.');
+      }
+    } catch (e) {
+      alert('Could not save profile. Please try again.');
+    } finally {
+      $('saveBtn').classList.remove('loading');
+      $('saveBtn').textContent = 'Save & Return to Calculator';
+    }
+  }
+
+  init();
+</script>
+</body>
+</html>

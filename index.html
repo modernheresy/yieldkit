@@ -135,6 +135,27 @@
     .modal-panel { display: none; }
     .modal-panel.active { display: block; }
     #saveBtn.loading { opacity: .6; pointer-events: none; }
+
+    .deal-card {
+      background: #F4F1EA;
+      border: 1.5px solid #E5E0D6;
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: opacity .3s, transform .3s;
+    }
+    .deal-card.removing {
+      opacity: 0;
+      transform: translateX(12px);
+      pointer-events: none;
+    }
+    .deal-cf-pos { color: #166534; }
+    .deal-cf-neg { color: #991b1b; }
+
+    @keyframes dealIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .deal-card { animation: dealIn .2s ease both; }
   </style>
 </head>
 
@@ -143,16 +164,35 @@
 
   <!-- ─── Header ─── -->
   <header class="flex items-center justify-between pb-5 border-b border-cream-dark">
-    <div class="font-display font-semibold text-[30px] leading-none text-brand tracking-tight">
-      Brick<span class="text-gold">lio</span>
-    </div>
+    <a href="/" class="flex items-center gap-2.5 select-none">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Grid of bricks: 2×3 arrangement with stagger -->
+        <rect x="2"  y="2"  width="11" height="6" rx="1.5" fill="#1A3828"/>
+        <rect x="15" y="2"  width="11" height="6" rx="1.5" fill="#1A3828" opacity=".55"/>
+        <rect x="7"  y="11" width="11" height="6" rx="1.5" fill="#1A3828"/>
+        <rect x="2"  y="11" width="3"  height="6" rx="1.5" fill="#1A3828" opacity=".35"/>
+        <rect x="20" y="11" width="6"  height="6" rx="1.5" fill="#1A3828" opacity=".35"/>
+        <rect x="2"  y="20" width="11" height="6" rx="1.5" fill="#1A3828" opacity=".7"/>
+        <rect x="15" y="20" width="11" height="6" rx="1.5" fill="#1A3828"/>
+      </svg>
+      <span class="font-display font-semibold text-[28px] leading-none text-brand tracking-tight">Bricklio</span>
+    </a>
     <div id="authArea">
       <div id="authGuest" class="text-[11px] text-stone-400 tracking-wide">UK property deal analyser</div>
       <div id="authUser" class="hidden flex items-center gap-2.5">
         <div class="text-right">
           <div class="text-[11px] font-medium text-brand" id="authEmail"></div>
-          <div class="text-[10px] text-stone-400" id="authPlan"></div>
         </div>
+        <button onclick="openMyDeals()"
+          class="flex items-center gap-1.5 px-2.5 h-8 rounded-lg border border-brand/20 bg-brand/5 hover:bg-brand/10 text-brand text-[11px] font-semibold tracking-wide transition-colors">
+          <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+            <rect x=".5" y=".5" width="4" height="4" rx=".8" fill="currentColor" opacity=".8"/>
+            <rect x="6.5" y=".5" width="4" height="4" rx=".8" fill="currentColor" opacity=".8"/>
+            <rect x=".5" y="6.5" width="4" height="4" rx=".8" fill="currentColor" opacity=".5"/>
+            <rect x="6.5" y="6.5" width="4" height="4" rx=".8" fill="currentColor" opacity=".8"/>
+          </svg>
+          My Deals
+        </button>
         <button onclick="logout()" class="text-[11px] text-stone-300 hover:text-stone-500 transition-colors">Sign out</button>
       </div>
     </div>
@@ -171,7 +211,6 @@
     <div class="cf-num text-white/50" id="cfNum">£—</div>
     <div class="flex items-center gap-2 mt-1 flex-wrap">
       <div class="text-[11px] text-white/35 tracking-wide">pre-tax monthly cashflow</div>
-      <div class="text-[10px] text-gold/60 tracking-wide cursor-pointer hover:text-gold/90 transition-colors">After-tax with Pro ›</div>
     </div>
 
     <div class="flex flex-wrap gap-1.5 mt-4" id="pills"></div>
@@ -339,7 +378,7 @@
         Send login link
       </button>
       <div class="text-[10px] text-stone-300 text-center mt-3 leading-relaxed">
-        Free account · save up to 3 deals · no credit card
+        Free account · no credit card needed
       </div>
     </div>
 
@@ -356,25 +395,28 @@
       </div>
     </div>
 
-    <!-- Panel 3: Pro wall -->
-    <div class="modal-panel" id="panelPro">
-      <div class="font-display text-[26px] font-semibold text-brand leading-tight mb-1">Upgrade to Pro</div>
-      <p class="text-[13px] text-stone-400 mb-5 leading-relaxed">
-        You've saved 3 deals on the free plan. Upgrade to save unlimited deals, compare side-by-side, and unlock stress testing.
-      </p>
-      <div class="bg-cream rounded-xl p-4 mb-5 space-y-2">
-        <div class="flex items-center gap-2 text-[13px] text-ink"><span class="text-brand font-bold">✓</span> Unlimited saved deals</div>
-        <div class="flex items-center gap-2 text-[13px] text-ink"><span class="text-brand font-bold">✓</span> Side-by-side comparison</div>
-        <div class="flex items-center gap-2 text-[13px] text-ink"><span class="text-brand font-bold">✓</span> Stress testing & scenarios</div>
-        <div class="flex items-center gap-2 text-[13px] text-ink"><span class="text-brand font-bold">✓</span> After-tax / Section 24 calculator</div>
-        <div class="flex items-center gap-2 text-[13px] text-ink"><span class="text-brand font-bold">✓</span> PDF export</div>
+    <!-- Panel 3: My Deals -->
+    <div class="modal-panel" id="panelMyDeals">
+      <div class="flex items-center justify-between mb-5">
+        <div class="font-display text-[26px] font-semibold text-brand leading-tight">My Deals</div>
+        <div class="text-[11px] text-stone-400" id="dealsCountLabel"></div>
       </div>
-      <button class="w-full h-[50px] rounded-[10px] bg-brand text-white text-[14px] font-semibold tracking-wide mb-2" id="upgradeBtn">
-        Upgrade — £7.99/mo
-      </button>
-      <button onclick="closeModal()" class="w-full h-[42px] rounded-[10px] text-[13px] text-stone-400 hover:text-stone-600 transition-colors">
-        Maybe later
-      </button>
+
+      <!-- Loading state -->
+      <div id="dealsLoading" class="space-y-2.5">
+        <div class="h-[76px] rounded-xl bg-cream animate-pulse"></div>
+        <div class="h-[76px] rounded-xl bg-cream animate-pulse"></div>
+      </div>
+
+      <!-- Empty state -->
+      <div id="dealsEmpty" class="hidden text-center py-8">
+        <div class="text-3xl mb-3">🏠</div>
+        <div class="text-[14px] font-medium text-stone-500 mb-1">No saved deals yet</div>
+        <div class="text-[12px] text-stone-300 leading-relaxed">Analyse a property and hit<br>Save Deal to keep it here.</div>
+      </div>
+
+      <!-- Deal list -->
+      <div id="dealsList" class="hidden space-y-2 max-h-[60vh] overflow-y-auto -mx-1 px-1 pb-1"></div>
     </div>
 
     <!-- Panel 4: Deal saved -->
@@ -382,8 +424,7 @@
       <div class="text-center py-4">
         <div class="text-4xl mb-4">✅</div>
         <div class="font-display text-[24px] font-semibold text-brand mb-2">Deal saved</div>
-        <p class="text-[13px] text-stone-400 leading-relaxed mb-2" id="savedMsg"></p>
-        <p class="text-[11px] text-stone-300 mb-5" id="savedCount"></p>
+        <p class="text-[13px] text-stone-400 leading-relaxed mb-5" id="savedMsg"></p>
         <button onclick="closeModal()" class="text-[12px] text-stone-300 hover:text-stone-500 transition-colors">Close</button>
       </div>
     </div>
@@ -496,7 +537,6 @@
       $('authGuest').classList.add('hidden');
       $('authUser').classList.remove('hidden');
       $('authEmail').textContent = user.email;
-      $('authPlan').textContent  = user.plan === 'pro' ? 'Pro ✦' : 'Free';
     } else {
       $('authGuest').classList.remove('hidden');
       $('authUser').classList.add('hidden');
@@ -514,16 +554,6 @@
   async function saveDeal() {
     if (!currentUser || !lastCalc) return;
 
-    let dealCount = 0;
-    try {
-      const res = await fetch(`${AUTH}/api/deals`, { credentials: 'include' });
-      if (res.ok) dealCount = (await res.json()).count || 0;
-    } catch (e) {}
-
-    if (dealCount >= 3 && currentUser.plan !== 'pro') {
-      showPanel('panelPro'); openModal(); return;
-    }
-
     $('saveBtn').classList.add('loading');
     $('saveBtn').textContent = 'Saving…';
 
@@ -537,11 +567,7 @@
       });
 
       if (res.ok) {
-        const newCount = dealCount + 1;
-        $('savedMsg').textContent   = `"${label}" has been saved to your account.`;
-        $('savedCount').textContent = currentUser.plan === 'pro'
-          ? `${newCount} deal${newCount !== 1 ? 's' : ''} saved`
-          : `${newCount} of 3 free saves used`;
+        $('savedMsg').textContent = `"${label}" has been saved to your account.`;
         showPanel('panelSaved');
         openModal();
       } else {
@@ -731,6 +757,139 @@
     const p = +$('price').value || 0;
     $('sdltAmt').textContent = p ? fmt(calcSDLT(p)) + ' due on completion' : 'Enter price above';
   });
+
+  // ─── My Deals ──────────────────────────────────────────────────────────────
+  async function openMyDeals() {
+    showPanel('panelMyDeals');
+    openModal();
+    $('dealsLoading').classList.remove('hidden');
+    $('dealsEmpty').classList.add('hidden');
+    $('dealsList').classList.add('hidden');
+
+    try {
+      const res = await fetch(`${AUTH}/api/deals/list`, { credentials: 'include' });
+      if (!res.ok) throw new Error();
+      const { deals } = await res.json();
+
+      $('dealsLoading').classList.add('hidden');
+
+      if (!deals || deals.length === 0) {
+        $('dealsEmpty').classList.remove('hidden');
+        $('dealsCountLabel').textContent = '';
+        return;
+      }
+
+      $('dealsCountLabel').textContent = `${deals.length} deal${deals.length !== 1 ? 's' : ''}`;
+      $('dealsList').classList.remove('hidden');
+      $('dealsList').innerHTML = deals.map((d, i) => buildDealCard(d, i)).join('');
+
+    } catch (e) {
+      $('dealsLoading').classList.add('hidden');
+      $('dealsList').classList.remove('hidden');
+      $('dealsList').innerHTML = `<div class="text-[12px] text-red-400 text-center py-4">Could not load deals. Please try again.</div>`;
+    }
+  }
+
+  function buildDealCard(deal, idx) {
+    const d    = deal.data || {};
+    const pos  = (d.monthly || 0) >= 0;
+    const cf   = d.monthly != null ? fmt(d.monthly) + '/mo' : '—';
+    const net  = d.net  != null ? d.net.toFixed(1)  + '% net'   : '—';
+    const grs  = d.gross != null ? d.gross.toFixed(1) + '% gross' : '—';
+    const date = new Date(deal.created_at).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+    const cfClass = pos ? 'deal-cf-pos' : 'deal-cf-neg';
+
+    return `
+      <div class="deal-card" id="deal-${deal.id}" style="animation-delay:${idx * 40}ms">
+        <div class="flex items-start justify-between gap-2">
+          <div class="min-w-0">
+            <div class="text-[14px] font-semibold text-ink leading-tight truncate">${deal.label}</div>
+            <div class="text-[11px] text-stone-400 mt-0.5">${date}</div>
+          </div>
+          <div class="text-[15px] font-semibold shrink-0 ${cfClass}">${cf}</div>
+        </div>
+        <div class="flex items-center justify-between mt-3">
+          <div class="flex gap-3 text-[11px] text-stone-400">
+            <span>${net}</span>
+            <span>${grs}</span>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="loadDeal('${deal.id}')"
+              class="h-7 px-3 rounded-lg bg-brand text-white text-[11px] font-semibold hover:bg-brand-mid transition-colors">
+              Load
+            </button>
+            <button onclick="deleteDeal('${deal.id}')"
+              class="h-7 px-3 rounded-lg border border-stone-200 text-stone-400 text-[11px] font-medium hover:border-red-200 hover:text-red-400 transition-colors">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  async function loadDeal(id) {
+    try {
+      const res = await fetch(`${AUTH}/api/deals/list`, { credentials: 'include' });
+      if (!res.ok) throw new Error();
+      const { deals } = await res.json();
+      const deal = deals.find(d => String(d.id) === String(id));
+      if (!deal || !deal.data) return;
+
+      const d = deal.data;
+      $('price').value   = d.price   || '';
+      $('deposit').value = d.deposit || 25;
+      $('rate').value    = d.rate    || 5;
+      $('rent').value    = d.rent    || '';
+      $('agent').value   = d.agent   || 10;
+      $('void').value    = d.voidWks || 2;
+      $('costs').value   = d.costs   || 150;
+
+      const radio = document.querySelector(`input[name="mtype"][value="${d.type || 'interest'}"]`);
+      if (radio) radio.checked = true;
+
+      $('sdltCheck').checked       = !!d.addSDLT;
+      $('ckBox').style.background  = d.addSDLT ? '#1A3828' : '#fff';
+      $('ckBox').style.borderColor = d.addSDLT ? '#1A3828' : '#C4BEB4';
+      $('ckTick').style.display    = d.addSDLT ? 'block'   : 'none';
+
+      closeModal();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      calc();
+    } catch (e) {
+      alert('Could not load deal. Please try again.');
+    }
+  }
+
+  async function deleteDeal(id) {
+    if (!confirm('Delete this deal? This cannot be undone.')) return;
+
+    try {
+      const res = await fetch(`${AUTH}/api/deals/${id}`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      if (!res.ok) throw new Error();
+
+      const card = $(`deal-${id}`);
+      if (card) {
+        card.classList.add('removing');
+        setTimeout(() => {
+          card.remove();
+          // Update count
+          const remaining = $('dealsList').querySelectorAll('.deal-card').length;
+          if (remaining === 0) {
+            $('dealsList').classList.add('hidden');
+            $('dealsEmpty').classList.remove('hidden');
+            $('dealsCountLabel').textContent = '';
+          } else {
+            $('dealsCountLabel').textContent = `${remaining} deal${remaining !== 1 ? 's' : ''}`;
+          }
+        }, 300);
+      }
+    } catch (e) {
+      alert('Could not delete deal. Please try again.');
+    }
+  }
 
   initAuth();
 </script>

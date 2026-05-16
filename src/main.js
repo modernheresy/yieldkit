@@ -93,6 +93,7 @@ async function initAuth() {
         clearPendingDeal()
       }
       await fetchTaxProfile()
+      checkS24Pending()
       checkS24Return()
     }
   } catch (e) {
@@ -576,10 +577,24 @@ function checkS24Return() {
   }
 }
 
+function checkS24Pending() {
+  const pending = localStorage.getItem('bk_s24_pending')
+  if (!pending) return
+  localStorage.removeItem('bk_s24_pending')
+  if (!userTaxProfile) {
+    // Logged in but no profile yet → go set one up
+    navigateToS24()
+  } else if (lastCalc) {
+    // Has profile → activate immediately
+    activateS24()
+  }
+}
+
 // ─── S24 checkbox click ───────────────────────────────────────────────────────
 function s24CheckClick() {
   if (!currentUser) {
-    // Not logged in → open login modal
+    // Not logged in → save pending flag then open login modal
+    localStorage.setItem('bk_s24_pending', '1')
     openModal()
     showPanel('panelLogin')
     return

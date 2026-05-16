@@ -173,29 +173,15 @@ input[type=number] { -moz-appearance: textfield; }
 .deal-cf-pos { color: #166534; }
 .deal-cf-neg { color: #991b1b; }
 
-/* ── Section 24 toggle ── */
-.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); border:0; }
-.s24-track {
-  width: 44px; height: 24px;
-  background: #F4F1EA;
-  border: 1.5px solid #DDD8CF;
-  border-radius: 99px;
-  position: relative;
-  transition: background .2s, border-color .2s;
+/* ── Section 24 checkbox ── */
+.s24-ck-box {
+  width: 18px; height: 18px; flex-shrink: 0;
+  border: 1.5px solid #C4BEB4; border-radius: 5px;
+  background: #fff;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s;
   cursor: pointer;
-  flex-shrink: 0;
 }
-.s24-track.on { background: #1A3828; border-color: #1A3828; }
-.s24-knob {
-  position: absolute;
-  top: 3px; left: 3px;
-  width: 16px; height: 16px;
-  border-radius: 50%;
-  background: #C4BEB4;
-  transition: transform .2s, background .2s;
-  box-shadow: 0 1px 3px rgba(0,0,0,.12);
-}
-.s24-track.on .s24-knob { transform: translateX(20px); background: #fff; }
 
 /* ── S24 after-tax on result card ── */
 .s24-after-num {

@@ -1,12 +1,13 @@
 import './style.css'
+import { S24 } from './section24.js'
 
 const $ = id => document.getElementById(id)
 const AUTH = ''
 
-let currentUser   = null
-let lastCalc      = null
+let currentUser    = null
+let lastCalc       = null
 let userTaxProfile = null
-let s24Active     = false
+let s24Active      = false
 
 const fmt = n => {
   const abs = '£' + Math.abs(Math.round(n)).toLocaleString('en-GB')
@@ -91,7 +92,6 @@ async function initAuth() {
         await saveDeal(pendingLabel || buildDealLabel())
         clearPendingDeal()
       }
-      // Fetch tax profile after login
       await fetchTaxProfile()
       checkS24Return()
     }
@@ -109,7 +109,10 @@ function setUser(user) {
   } else {
     $('authGuest').classList.remove('hidden')
     $('authUser').classList.add('hidden')
-    currentUser = null
+    currentUser    = null
+    userTaxProfile = null
+    deactivateS24()
+    $('s24EditLink').classList.add('hidden')
   }
 }
 
@@ -299,7 +302,6 @@ function calc() {
   const cashIn    = depositAmt + (addSDLT ? 0 : sdlt)
   const pos       = monthly >= 0
 
-  // Extended calc state for S24
   const monthlyInterest = loan * mr
   const monthlyCosts    = agentAmt + voidAmt + costs
 
@@ -308,6 +310,9 @@ function calc() {
     mtg, monthly, annual, gross, net, cashIn, sdlt, loan,
     monthlyInterest, monthlyCosts,
   }
+
+  // Persist for S24 page
+  localStorage.setItem('bk_calc', JSON.stringify(lastCalc))
 
   const vEl = $('verdict')
   vEl.textContent = pos ? '✓ POSITIVE CASHFLOW' : '✗ NEGATIVE CASHFLOW'
@@ -337,8 +342,13 @@ function calc() {
   $('yRating').style.color   = ym.col
   $('yRating').textContent   = ym.label + ' · ' + net.toFixed(2) + '% net yield'
 
-  // Update S24 display if active
-  if (s24Active) updateS24Display()
+  if (s24Active && userTaxProfile) {
+    $('s24Warning').classList.add('hidden')
+    updateS24Display()
+  } else {
+    $('s24Result').classList.add('hidden')
+    $('s24Warning').classList.remove('hidden')
+  }
 }
 
 document.querySelectorAll('input').forEach(el => el.addEventListener('input', calc))
@@ -566,17 +576,21 @@ function checkS24Return() {
   }
 }
 
-function s24ToggleClick() {
+// ─── S24 checkbox click ───────────────────────────────────────────────────────
+function s24CheckClick() {
   if (!currentUser) {
+    // Not logged in → open login modal
     openModal()
     showPanel('panelLogin')
     return
   }
   if (!userTaxProfile) {
+    // Logged in but no profile → go to S24 page to set up
     navigateToS24()
     return
   }
-  if ($('s24Track').classList.contains('on')) {
+  // Has profile → toggle on/off
+  if (s24Active) {
     deactivateS24()
   } else {
     activateS24()
@@ -590,8 +604,9 @@ function navigateToS24() {
 
 function activateS24(silent = false) {
   s24Active = true
-  $('s24Track').classList.add('on')
-  $('s24Checkbox').checked = true
+  $('s24CkBox').style.background  = '#1A3828'
+  $('s24CkBox').style.borderColor = '#1A3828'
+  $('s24CkTick').style.display    = 'block'
   localStorage.setItem('bk_s24_active', '1')
   $('s24Warning').classList.add('hidden')
   if (lastCalc) updateS24Display()
@@ -599,8 +614,9 @@ function activateS24(silent = false) {
 
 function deactivateS24() {
   s24Active = false
-  $('s24Track').classList.remove('on')
-  $('s24Checkbox').checked = false
+  $('s24CkBox').style.background  = '#fff'
+  $('s24CkBox').style.borderColor = '#C4BEB4'
+  $('s24CkTick').style.display    = 'none'
   localStorage.removeItem('bk_s24_active')
   $('s24Result').classList.add('hidden')
   if (lastCalc) $('s24Warning').classList.remove('hidden')
@@ -617,7 +633,7 @@ function updateS24Display() {
 
   $('s24Result').classList.remove('hidden')
 
-  const isRange  = result.isRange
+  const isRange = result.isRange
   const fmt3 = n => {
     const abs = '£' + Math.abs(Math.round(n)).toLocaleString('en-GB')
     return n < 0 ? '−' + abs : abs
@@ -644,21 +660,21 @@ function updateS24Display() {
   }
 }
 
-// ─── Expose globals needed by inline HTML onclick handlers ────────────────────
-window.initSave           = initSave
-window.confirmSaveName    = confirmSaveName
-window.sendMagicLink      = sendMagicLink
-window.logout             = logout
-window.closeModal         = closeModal
+// ─── Expose globals for inline onclick handlers ───────────────────────────────
+window.initSave             = initSave
+window.confirmSaveName      = confirmSaveName
+window.sendMagicLink        = sendMagicLink
+window.logout               = logout
+window.closeModal           = closeModal
 window.closeModalOnBackdrop = closeModalOnBackdrop
-window.openMyDeals        = openMyDeals
-window.startRename        = startRename
-window.cancelRename       = cancelRename
-window.confirmRename      = confirmRename
-window.loadDeal           = loadDeal
-window.deleteDeal         = deleteDeal
-window.calc               = calc
-window.s24ToggleClick     = s24ToggleClick
-window.navigateToS24      = navigateToS24
+window.openMyDeals          = openMyDeals
+window.startRename          = startRename
+window.cancelRename         = cancelRename
+window.confirmRename        = confirmRename
+window.loadDeal             = loadDeal
+window.deleteDeal           = deleteDeal
+window.calc                 = calc
+window.s24CheckClick        = s24CheckClick
+window.navigateToS24        = navigateToS24
 
 initAuth()

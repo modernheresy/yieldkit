@@ -225,21 +225,22 @@
 
     <div class="sec-rule-light mt-5 mb-4"></div>
 
-    <!-- S24 toggle -->
-    <div class="flex items-center justify-between gap-3">
-      <div class="min-w-0">
-        <div class="flex items-center gap-2 mb-0.5">
+    <!-- ─── Section 24 ─── -->
+    <div class="flex items-center gap-3">
+      <div class="s24-ck-box" id="s24CkBox" onclick="s24CheckClick()">
+        <svg id="s24CkTick" width="10" height="8" viewBox="0 0 10 8" fill="none" style="display:none">
+          <path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="min-w-0 flex-1">
+        <div class="flex items-center gap-2">
           <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400">Section 24</div>
           <a href="/section24.html" id="s24EditLink"
             class="hidden text-[10px] font-semibold text-brand/60 hover:text-brand transition-colors">
-            Edit profile →
+            Edit →
           </a>
         </div>
         <div class="text-[11px] text-stone-300 leading-relaxed">After-tax cashflow · account feature</div>
-      </div>
-      <div class="s24-track" id="s24Track" onclick="s24ToggleClick()">
-        <div class="s24-knob" id="s24Knob"></div>
-        <input type="checkbox" id="s24Checkbox" class="sr-only">
       </div>
     </div>
 

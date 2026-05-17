@@ -121,12 +121,29 @@ function update() {
 
   if (taxProfile) {
     const s24 = S24.calculate(taxProfile, result)
-    if (s24 && !s24.notApplicable) {
+    const annualPropertyProfit = result.rent * 12 - result.monthlyCosts * 12
+    if (s24 && !s24.notApplicable && annualPropertyProfit > 0) {
       const afterMonthly = s24.isRange ? s24.afterTaxMonthlyLow : s24.afterTaxMonthly
-      $('cfLabel').textContent = `pre-tax · after S24: ${fmt(afterMonthly)}/mo`
+      const afterPos     = afterMonthly >= 0
+      const afterCol     = afterPos ? '#86efac' : '#fca5a5'
+
+      // After-tax is hero
+      $('cfNum').textContent = fmt(afterMonthly) + '/mo'
+      $('cfNum').style.color = afterCol
+      $('cfLabel').textContent = 'after-tax monthly cashflow'
+
+      // Pre-tax as secondary
+      $('preTaxNum').textContent = fmt(monthly) + '/mo'
+      const monthlyCost = s24.isRange ? s24.worstCase.s24ExtraMonthly : s24.s24ExtraMonthly
+      $('s24CostNum').textContent = '−£' + Math.abs(Math.round(monthlyCost)).toLocaleString('en-GB') + '/mo'
+      $('s24Secondary').classList.remove('hidden')
+    } else {
+      $('cfLabel').textContent = 'pre-tax monthly cashflow'
+      $('s24Secondary').classList.add('hidden')
     }
   } else {
     $('cfLabel').textContent = 'pre-tax monthly cashflow'
+    $('s24Secondary').classList.add('hidden')
   }
 
   $('statMtg').textContent    = fmt(mtg) + '/mo'

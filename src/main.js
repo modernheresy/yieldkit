@@ -678,7 +678,7 @@ function updateS24Display() {
   afterEl.textContent = fmt3(afterMonthly) + '/mo'
   afterEl.style.color = col
 
-  const monthlyCost = isRange ? result.worstCase.monthlyTax : result.monthlyTax
+  const monthlyCost = isRange ? result.worstCase.s24ExtraMonthly : result.s24ExtraMonthly
   $('s24CostAmt').textContent = '−£' + Math.round(monthlyCost).toLocaleString('en-GB') + '/mo'
 
   if (isRange) {

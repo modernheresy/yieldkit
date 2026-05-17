@@ -10,7 +10,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         main:     resolve(__dirname, 'index.html'),
-        section24: resolve(__dirname, 'section24.html'),
+        section24:  resolve(__dirname, 'section24.html'),
+        stress:     resolve(__dirname, 'stress.html')
       },
     },
   },

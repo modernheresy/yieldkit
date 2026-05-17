@@ -1,5 +1,6 @@
 import './style.css'
 import { S24 } from './section24.js'
+import { calcFromInputs, calcSDLT } from './calc.js'
 
 const $ = id => document.getElementById(id)
 const AUTH = ''
@@ -242,16 +243,6 @@ function buildDealLabel() {
 }
 
 // ─── Calculator ───────────────────────────────────────────────────────────────
-function calcSDLT(price) {
-  if (!price) return 0
-  let sdlt = 0
-  if (price <= 250000)        sdlt = price * 0.05
-  else if (price <= 925000)   sdlt = 250000*0.05 + (price-250000)*0.10
-  else if (price <= 1500000)  sdlt = 250000*0.05 + 675000*0.10 + (price-925000)*0.15
-  else                        sdlt = 250000*0.05 + 675000*0.10 + 575000*0.15 + (price-1500000)*0.17
-  return sdlt
-}
-
 $('sdltCheck').addEventListener('change', function() {
   $('ckBox').style.background  = this.checked ? '#1A3828' : '#fff'
   $('ckBox').style.borderColor = this.checked ? '#1A3828' : '#C4BEB4'
@@ -287,33 +278,15 @@ function calc() {
   $('sdltAmt').textContent = price ? fmt(sdlt) + ' due on completion' : 'Enter price above'
   if (!price || !rent) return
 
-  const depositAmt = price * deposit / 100
-  const baseLoan   = price - depositAmt
-  const loan       = addSDLT ? baseLoan + sdlt : baseLoan
-  const mr         = rate / 100 / 12
-  const mtg        = type === 'interest'
-    ? loan * mr
-    : (() => { const n=300; return loan*(mr*Math.pow(1+mr,n))/(Math.pow(1+mr,n)-1) })()
+  const result = calcFromInputs({ price, deposit, rate, rent, agent, voidWks, costs, type, addSDLT })
+  if (!result) return
 
-  const agentAmt  = rent * agent / 100
-  const voidAmt   = rent * voidWks / 52
-  const monthly   = rent - (mtg + agentAmt + voidAmt + costs)
-  const annual    = monthly * 12
-  const gross     = rent * 12 / price * 100
-  const net       = (rent*12 - (agentAmt+voidAmt+costs)*12) / price * 100
-  const cashIn    = depositAmt + (addSDLT ? 0 : sdlt)
-  const pos       = monthly >= 0
+  const { mtg, monthly, annual, gross, net, cashIn, loan, monthlyInterest, monthlyCosts } = result
+  const pos = monthly >= 0
 
-  const monthlyInterest = loan * mr
-  const monthlyCosts    = agentAmt + voidAmt + costs
+  lastCalc = result
 
-  lastCalc = {
-    price, deposit, rate, rent, agent, voidWks, costs, type, addSDLT,
-    mtg, monthly, annual, gross, net, cashIn, sdlt, loan,
-    monthlyInterest, monthlyCosts,
-  }
-
-  // Persist for S24 page
+  // Persist for S24 page and stress test
   localStorage.setItem('bk_calc', JSON.stringify(lastCalc))
 
   const vEl = $('verdict')
@@ -343,6 +316,8 @@ function calc() {
   $('ybar').style.background = ym.col
   $('yRating').style.color   = ym.col
   $('yRating').textContent   = ym.label + ' · ' + net.toFixed(2) + '% net yield'
+
+  $('stressLink').classList.remove('hidden')
 
   if (s24Active && userTaxProfile) {
     $('s24Warning').classList.add('hidden')
@@ -620,6 +595,20 @@ function navigateToS24() {
   window.location.href = '/section24.html'
 }
 
+function navigateToStress() {
+  if (!lastCalc) return
+  // Write raw inputs to sessionStorage — stress page re-runs calcFromInputs
+  // at many rate/rent points without needing the DOM.
+  sessionStorage.setItem('bk_stress', JSON.stringify(lastCalc))
+  // Also pass S24 profile if active, so stress page can show the after-tax curve
+  if (s24Active && userTaxProfile) {
+    sessionStorage.setItem('bk_stress_profile', JSON.stringify(userTaxProfile))
+  } else {
+    sessionStorage.removeItem('bk_stress_profile')
+  }
+  window.location.href = '/stress.html'
+}
+
 function activateS24(silent = false) {
   s24Active = true
   $('s24CkBox').style.background  = '#1A3828'
@@ -694,5 +683,6 @@ window.deleteDeal           = deleteDeal
 window.calc                 = calc
 window.s24CheckClick        = s24CheckClick
 window.navigateToS24        = navigateToS24
+window.navigateToStress     = navigateToStress
 
 initAuth()

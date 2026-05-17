@@ -95,6 +95,17 @@
 
     <div class="flex flex-wrap gap-1.5 mt-4" id="pills"></div>
 
+    <!-- Stress test link — shown once a deal is calculated -->
+    <div id="stressLink" class="hidden mt-3">
+      <a onclick="navigateToStress()" class="inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-wide cursor-pointer transition-colors" style="color:rgba(255,255,255,.35)" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">
+        <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
+          <path d="M1 9.5L5.5 1.5L10 9.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2.2 7h6.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        </svg>
+        Stress test this deal →
+      </a>
+    </div>
+
     <div id="ybarWrap" class="mt-5 hidden">
       <div class="flex justify-between text-[9px] tracking-wide mb-1.5 text-white/30 uppercase">
         <span>Weak</span><span>Average</span><span>Good</span><span>Excellent</span>

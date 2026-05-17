@@ -679,7 +679,7 @@ function updateS24Display() {
   afterEl.style.color = col
 
   const monthlyCost = isRange ? result.worstCase.s24ExtraMonthly : result.s24ExtraMonthly
-  $('s24CostAmt').textContent = '−£' + Math.round(monthlyCost).toLocaleString('en-GB') + '/mo'
+  $('s24CostAmt').textContent = '−£' + Math.abs(Math.round(monthlyCost)).toLocaleString('en-GB') + '/mo'
 
   if (isRange) {
     $('s24RangeNote').classList.remove('hidden')

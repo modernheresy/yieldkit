@@ -314,6 +314,7 @@ function calc() {
   cfEl.classList.add('num-pop')
   cfEl.textContent = fmt(monthly) + '/mo'
   cfEl.style.color = pos ? '#86efac' : '#fca5a5'
+  $('cfLabel').textContent = 'pre-tax monthly cashflow'
 
   $('mAnnual').textContent = fmt(annual)
   $('mGross').textContent  = gross.toFixed(1) + '%'
@@ -671,12 +672,22 @@ function updateS24Display() {
   const pos          = afterMonthly >= 0
   const col          = pos ? '#86efac' : '#fca5a5'
 
-  const afterEl = $('s24AfterNum')
-  afterEl.classList.remove('num-pop')
-  void afterEl.offsetWidth
-  afterEl.classList.add('num-pop')
-  afterEl.textContent = fmt3(afterMonthly) + '/mo'
-  afterEl.style.color = col
+  // Promote after-tax to hero
+  const cfEl = $('cfNum')
+  cfEl.classList.remove('num-pop')
+  void cfEl.offsetWidth
+  cfEl.classList.add('num-pop')
+  cfEl.textContent = fmt3(afterMonthly) + '/mo'
+  cfEl.style.color = col
+  $('cfLabel').textContent = 'after-tax monthly cashflow'
+
+  // Update verdict to reflect after-tax
+  const vEl = $('verdict')
+  vEl.textContent = pos ? '✓ POSITIVE AFTER TAX' : '✗ NEGATIVE AFTER TAX'
+  vEl.style.color = pos ? '#86efac' : '#fca5a5'
+
+  // Pre-tax as secondary in S24 panel
+  $('s24PreNum').textContent = fmt(lastCalc.monthly) + '/mo'
 
   const monthlyCost = isRange ? result.worstCase.s24ExtraMonthly : result.s24ExtraMonthly
   $('s24CostAmt').textContent = '−£' + Math.abs(Math.round(monthlyCost)).toLocaleString('en-GB') + '/mo'

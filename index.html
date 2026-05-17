@@ -58,11 +58,9 @@
     </div>
 
     <div class="cf-num text-white/50" id="cfNum">£—</div>
-    <div class="flex items-center gap-2 mt-1 flex-wrap">
-      <div class="text-[11px] text-white/35 tracking-wide">pre-tax monthly cashflow</div>
-    </div>
+    <div class="text-[11px] text-white/35 tracking-wide mt-1" id="cfLabel">pre-tax monthly cashflow</div>
 
-    <!-- S24 pre-tax warning -->
+    <!-- S24 pre-tax warning (shown when S24 inactive) -->
     <div id="s24Warning" class="hidden mt-2">
       <a href="/section24.html" class="inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-wide transition-colors" style="color:rgba(252,165,165,.7)">
         <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
@@ -73,12 +71,12 @@
       </a>
     </div>
 
-    <!-- S24 after-tax result -->
+    <!-- S24 active: after-tax hero + pre-tax secondary -->
     <div id="s24Result" class="hidden mt-4 pt-4" style="border-top:1px solid rgba(255,255,255,.1)">
       <div class="flex items-end justify-between gap-3">
         <div>
-          <div class="text-[9px] font-semibold tracking-[1.6px] uppercase mb-1.5" style="color:rgba(255,255,255,.3)">After Tax</div>
-          <div class="s24-after-num" id="s24AfterNum" style="color:rgba(255,255,255,.4)">£—</div>
+          <div class="text-[9px] font-semibold tracking-[1.6px] uppercase mb-1.5" style="color:rgba(255,255,255,.3)">Pre-tax</div>
+          <div class="text-[22px] font-semibold" id="s24PreNum" style="color:rgba(255,255,255,.3)">£—</div>
         </div>
         <div class="text-right pb-0.5">
           <div class="text-[9px] font-semibold tracking-[1.4px] uppercase mb-1" style="color:rgba(255,255,255,.22)">S24 Cost</div>

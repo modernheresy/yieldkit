@@ -38,7 +38,7 @@
   <!-- ─── Page title ─── -->
   <div class="pt-1 pb-1">
     <h1 class="font-display text-[32px] font-semibold text-brand leading-tight tracking-tight">Section 24 Analysis</h1>
-    <p class="text-[13px] text-stone-400 mt-1 leading-relaxed">
+    <p class="text-[13px] text-stone-500 mt-1 leading-relaxed">
       See your real after-tax cashflow. Section 24 restricts mortgage interest relief for individual landlords to a flat 20% credit — significantly impacting higher and additional rate taxpayers.
     </p>
   </div>
@@ -140,7 +140,7 @@
   <div class="bg-white rounded-2xl border border-cream-dark px-5 pt-5 pb-6 shadow-sm">
 
     <!-- Ownership -->
-    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-3.5">Ownership</div>
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-700 mb-3.5">Ownership</div>
     <div class="grid grid-cols-2 gap-2 mb-4">
       <input type="radio" name="ownership" id="own-individual" value="individual" class="toggle-radio" checked>
       <label for="own-individual" class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[13px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150">
@@ -160,14 +160,14 @@
     <div class="sec-rule-light my-4"></div>
 
     <!-- Annual Income -->
-    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-2">Annual Income</div>
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-700 mb-2">Annual Income</div>
 
     <!-- Income type toggle -->
     <div class="flex gap-1 bg-cream rounded-[10px] p-1 mb-2">
       <button type="button" id="typeOther" class="mode-tab active" onclick="setIncomeType('other')">Salary &amp; other</button>
       <button type="button" id="typeTotal" class="mode-tab"        onclick="setIncomeType('total')">Total inc. rental</button>
     </div>
-    <div id="incomeTypeDesc" class="text-[11px] text-stone-400 mb-3 leading-relaxed">
+    <div id="incomeTypeDesc" class="text-[11px] text-stone-500 mb-3 leading-relaxed">
       Salary, pension and other income — not including this rental property.
     </div>
 
@@ -184,7 +184,7 @@
         <input type="number" id="incomeExact" class="field-input" placeholder="45000">
       </div>
       <!-- Total mode breakdown — shown when incomeType = 'total' -->
-      <div id="totalBreakdown" class="hidden mt-2 px-3 py-2.5 bg-cream rounded-[10px] text-[11px] text-stone-400 leading-relaxed">
+      <div id="totalBreakdown" class="hidden mt-2 px-3 py-2.5 bg-cream rounded-[10px] text-[11px] text-stone-500 leading-relaxed">
         Annual rental profit from this deal: <span id="tbRentalProfit" class="font-semibold text-ink">—</span><br>
         Other income used for calculation: <span id="tbOtherIncome" class="font-semibold text-brand">—</span>
       </div>
@@ -210,14 +210,14 @@
           Over<br>£125,140
         </label>
       </div>
-      <div class="text-[10px] text-stone-300 mt-2 leading-relaxed">
+      <div class="text-[10px] text-stone-400 mt-2 leading-relaxed">
         ⚡ £100k–£125k is the PA taper zone. Personal Allowance is withdrawn here, creating an effective marginal rate of ~60%. S24 is particularly costly in this range.
       </div>
     </div>
 
     <!-- Derived tax band (live) -->
     <div id="derivedBandWrap" class="hidden flex items-center gap-2 mt-3">
-      <span class="text-[11px] text-stone-400">Marginal rate:</span>
+      <span class="text-[11px] text-stone-500">Marginal rate:</span>
       <span id="derivedBandLabel" class="text-[11px] font-semibold text-brand"></span>
     </div>
 
@@ -239,7 +239,7 @@
       class="w-full h-[50px] rounded-[10px] bg-brand text-white text-[14px] font-semibold tracking-wide hover:bg-brand-mid active:scale-[.99] transition-all duration-150">
       Save & Return to Calculator
     </button>
-    <div class="text-[10px] text-stone-300 text-center mt-2 leading-relaxed">
+    <div class="text-[10px] text-stone-400 text-center mt-2 leading-relaxed">
       Your tax profile is saved to your account and used across all deal analyses.
     </div>
 

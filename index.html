@@ -27,7 +27,7 @@
       <span class="font-display font-semibold text-[28px] leading-none text-brand tracking-tight">Bricklio</span>
     </a>
     <div id="authArea">
-      <div id="authGuest" class="text-[11px] text-stone-400 tracking-wide">UK property deal analyser</div>
+      <div id="authGuest" class="text-[11px] text-stone-500 tracking-wide">UK property deal analyser</div>
       <div id="authUser" class="hidden flex items-center gap-2.5">
         <div class="text-right">
           <div class="text-[11px] font-medium text-brand" id="authEmail"></div>
@@ -42,7 +42,7 @@
           </svg>
           My Deals
         </button>
-        <button onclick="logout()" class="text-[11px] text-stone-300 hover:text-stone-500 transition-colors">Sign out</button>
+        <button onclick="logout()" class="text-[11px] text-stone-500 hover:text-stone-500 transition-colors">Sign out</button>
       </div>
     </div>
   </header>
@@ -135,10 +135,10 @@
   <!-- ─── Form Card ─── -->
   <div class="bg-white rounded-2xl border border-cream-dark px-5 pt-5 pb-6 shadow-sm">
 
-    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-3.5">Property</div>
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-700 mb-3.5">Property</div>
 
     <div class="mb-3">
-      <label class="block text-xs font-medium text-stone-400 mb-1.5">Purchase price</label>
+      <label class="block text-xs font-semibold text-stone-600 mb-1.5">Purchase price</label>
       <div class="relative has-pre">
         <span class="sym sym-l">£</span>
         <input type="number" id="price" class="field-input" placeholder="250000">
@@ -147,14 +147,14 @@
 
     <div class="grid grid-cols-2 gap-2.5 mb-3">
       <div>
-        <label class="block text-xs font-medium text-stone-400 mb-1.5">Deposit</label>
+        <label class="block text-xs font-semibold text-stone-600 mb-1.5">Deposit</label>
         <div class="relative has-suf">
           <input type="number" id="deposit" class="field-input" value="25">
           <span class="sym sym-r">%</span>
         </div>
       </div>
       <div>
-        <label class="block text-xs font-medium text-stone-400 mb-1.5">Interest rate</label>
+        <label class="block text-xs font-semibold text-stone-600 mb-1.5">Interest rate</label>
         <div class="relative has-suf">
           <input type="number" id="rate" class="field-input" value="5.0" step="0.1">
           <span class="sym sym-r">%</span>
@@ -163,7 +163,7 @@
     </div>
 
     <div class="mb-4">
-      <label class="block text-xs font-medium text-stone-400 mb-1.5">Mortgage type</label>
+      <label class="block text-xs font-semibold text-stone-600 mb-1.5">Mortgage type</label>
       <div class="grid grid-cols-2 gap-2">
         <input type="radio" name="mtype" id="io" value="interest" class="toggle-radio" checked>
         <label for="io" class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[13px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150">
@@ -178,10 +178,10 @@
 
     <div class="sec-rule-light my-4"></div>
 
-    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-3.5">Stamp Duty (BTL)</div>
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-700 mb-3.5">Stamp Duty (BTL)</div>
     <div class="sdlt-box mb-4">
       <div>
-        <div class="text-[11px] text-stone-400 mb-0.5">Calculated automatically</div>
+        <div class="text-[11px] text-stone-500 mb-0.5">Calculated automatically</div>
         <div class="text-[15px] font-semibold text-ink" id="sdltAmt">Enter price above</div>
       </div>
       <label class="flex items-center gap-2 cursor-pointer select-none shrink-0">
@@ -196,10 +196,10 @@
     </div>
 
     <div class="sec-rule-light my-4"></div>
-    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400 mb-3.5">Income & Costs</div>
+    <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-700 mb-3.5">Income & Costs</div>
 
     <div class="mb-3">
-      <label class="block text-xs font-medium text-stone-400 mb-1.5">Monthly rent</label>
+      <label class="block text-xs font-semibold text-stone-600 mb-1.5">Monthly rent</label>
       <div class="relative has-pre">
         <span class="sym sym-l">£</span>
         <input type="number" id="rent" class="field-input" placeholder="1200">
@@ -208,14 +208,14 @@
 
     <div class="grid grid-cols-2 gap-2.5 mb-3">
       <div>
-        <label class="block text-xs font-medium text-stone-400 mb-1.5">Agent fee</label>
+        <label class="block text-xs font-semibold text-stone-600 mb-1.5">Agent fee</label>
         <div class="relative has-suf">
           <input type="number" id="agent" class="field-input" value="10">
           <span class="sym sym-r">%</span>
         </div>
       </div>
       <div>
-        <label class="block text-xs font-medium text-stone-400 mb-1.5">Void weeks/yr</label>
+        <label class="block text-xs font-semibold text-stone-600 mb-1.5">Void weeks/yr</label>
         <div class="relative has-suf">
           <input type="number" id="void" class="field-input" value="2">
           <span class="sym sym-r">wk</span>
@@ -224,12 +224,12 @@
     </div>
 
     <div class="mb-1">
-      <label class="block text-xs font-medium text-stone-400 mb-1.5">Other monthly costs</label>
+      <label class="block text-xs font-semibold text-stone-600 mb-1.5">Other monthly costs</label>
       <div class="relative has-pre">
         <span class="sym sym-l">£</span>
         <input type="number" id="costs" class="field-input" value="150">
       </div>
-      <div class="text-[10px] text-stone-300 mt-1.5 leading-relaxed">
+      <div class="text-[10px] text-stone-400 mt-1.5 leading-relaxed">
         Insurance, maintenance, ground rent, service charges, etc.
       </div>
     </div>
@@ -245,13 +245,13 @@
       </div>
       <div class="min-w-0 flex-1">
         <div class="flex items-center gap-2">
-          <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-400">Section 24</div>
+          <div class="text-[10px] font-semibold tracking-[1.6px] uppercase text-stone-700">Section 24</div>
           <a href="/section24.html" id="s24EditLink"
             class="hidden text-[10px] font-semibold text-brand/60 hover:text-brand transition-colors">
             Edit →
           </a>
         </div>
-        <div class="text-[11px] text-stone-300 leading-relaxed">After-tax cashflow · account feature</div>
+        <div class="text-[11px] text-stone-500 leading-relaxed">After-tax cashflow · account feature</div>
       </div>
     </div>
 
@@ -279,7 +279,7 @@
     <!-- Panel 1: Login -->
     <div class="modal-panel active" id="panelLogin">
       <div class="font-display text-[26px] font-semibold text-brand leading-tight mb-1">Save this deal</div>
-      <p class="text-[13px] text-stone-400 mb-5 leading-relaxed">Enter your email and we'll send you a login link. No password needed.</p>
+      <p class="text-[13px] text-stone-500 mb-5 leading-relaxed">Enter your email and we'll send you a login link. No password needed.</p>
       <div class="relative mb-3">
         <input type="email" id="loginEmail" class="field-input" placeholder="you@example.com"
           onkeydown="if(event.key==='Enter') sendMagicLink()">
@@ -289,7 +289,7 @@
         class="w-full h-[50px] rounded-[10px] bg-brand text-white text-[14px] font-semibold tracking-wide hover:bg-brand-mid transition-all duration-150">
         Send login link
       </button>
-      <div class="text-[10px] text-stone-300 text-center mt-3 leading-relaxed">
+      <div class="text-[10px] text-stone-400 text-center mt-3 leading-relaxed">
         Free account · no credit card needed
       </div>
     </div>
@@ -299,11 +299,11 @@
       <div class="text-center py-4">
         <div class="text-4xl mb-4">✉️</div>
         <div class="font-display text-[24px] font-semibold text-brand mb-2">Check your inbox</div>
-        <p class="text-[13px] text-stone-400 leading-relaxed mb-5">
+        <p class="text-[13px] text-stone-500 leading-relaxed mb-5">
           We've sent a login link to <span id="sentEmail" class="font-medium text-ink"></span>.<br>
           Click it and your deal will be saved automatically.
         </p>
-        <button onclick="closeModal()" class="text-[12px] text-stone-300 hover:text-stone-500 transition-colors">Close</button>
+        <button onclick="closeModal()" class="text-[12px] text-stone-500 hover:text-stone-500 transition-colors">Close</button>
       </div>
     </div>
 
@@ -311,7 +311,7 @@
     <div class="modal-panel" id="panelMyDeals">
       <div class="flex items-center justify-between mb-5">
         <div class="font-display text-[26px] font-semibold text-brand leading-tight">My Deals</div>
-        <div class="text-[11px] text-stone-400" id="dealsCountLabel"></div>
+        <div class="text-[11px] text-stone-500" id="dealsCountLabel"></div>
       </div>
       <div id="dealsLoading" class="space-y-2.5">
         <div class="h-[76px] rounded-xl bg-cream animate-pulse"></div>
@@ -320,7 +320,7 @@
       <div id="dealsEmpty" class="hidden text-center py-8">
         <div class="text-3xl mb-3">🏠</div>
         <div class="text-[14px] font-medium text-stone-500 mb-1">No saved deals yet</div>
-        <div class="text-[12px] text-stone-300 leading-relaxed">Analyse a property and hit<br>Save Deal to keep it here.</div>
+        <div class="text-[12px] text-stone-500 leading-relaxed">Analyse a property and hit<br>Save Deal to keep it here.</div>
       </div>
       <div id="dealsList" class="hidden space-y-2 max-h-[60vh] overflow-y-auto -mx-1 px-1 pb-1"></div>
     </div>
@@ -328,14 +328,14 @@
     <!-- Panel 4: Name deal -->
     <div class="modal-panel" id="panelName">
       <div class="font-display text-[26px] font-semibold text-brand leading-tight mb-1">Name this deal</div>
-      <p class="text-[13px] text-stone-400 mb-5 leading-relaxed">Give it a name so you can find it easily later.</p>
+      <p class="text-[13px] text-stone-500 mb-5 leading-relaxed">Give it a name so you can find it easily later.</p>
       <input type="text" id="dealName" class="field-input mb-3" placeholder="e.g. Manchester terrace, 2-bed"
         onkeydown="if(event.key==='Enter') confirmSaveName()">
       <button onclick="confirmSaveName()" id="confirmNameBtn"
         class="w-full h-[50px] rounded-[10px] bg-brand text-white text-[14px] font-semibold tracking-wide hover:bg-brand-mid transition-all duration-150 mb-2">
         Continue
       </button>
-      <button onclick="closeModal()" class="w-full h-[42px] rounded-[10px] text-[13px] text-stone-400 hover:text-stone-600 transition-colors">
+      <button onclick="closeModal()" class="w-full h-[42px] rounded-[10px] text-[13px] text-stone-500 hover:text-stone-600 transition-colors">
         Cancel
       </button>
     </div>
@@ -345,8 +345,8 @@
       <div class="text-center py-4">
         <div class="text-4xl mb-4">✅</div>
         <div class="font-display text-[24px] font-semibold text-brand mb-2">Deal saved</div>
-        <p class="text-[13px] text-stone-400 leading-relaxed mb-5" id="savedMsg"></p>
-        <button onclick="closeModal()" class="text-[12px] text-stone-300 hover:text-stone-500 transition-colors">Close</button>
+        <p class="text-[13px] text-stone-500 leading-relaxed mb-5" id="savedMsg"></p>
+        <button onclick="closeModal()" class="text-[12px] text-stone-500 hover:text-stone-500 transition-colors">Close</button>
       </div>
     </div>
 

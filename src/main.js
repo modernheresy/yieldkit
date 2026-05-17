@@ -633,8 +633,8 @@ function navigateToStress() {
 
 function activateS24(silent = false) {
   s24Active = true
-  $('s24CkBox').style.background  = '#0E0420'
-  $('s24CkBox').style.borderColor = '#0E0420'
+  $('s24CkBox').style.background  = 'rgba(255,255,255,.25)'
+  $('s24CkBox').style.borderColor = 'rgba(255,255,255,.6)'
   $('s24CkTick').style.display    = 'block'
   localStorage.setItem('bk_s24_active', '1')
   $('s24Warning').classList.add('hidden')
@@ -643,8 +643,8 @@ function activateS24(silent = false) {
 
 function deactivateS24() {
   s24Active = false
-  $('s24CkBox').style.background  = '#fff'
-  $('s24CkBox').style.borderColor = '#C4BEB4'
+  $('s24CkBox').style.background  = 'transparent'
+  $('s24CkBox').style.borderColor = 'rgba(255,255,255,.25)'
   $('s24CkTick').style.display    = 'none'
   localStorage.removeItem('bk_s24_active')
   $('s24Result').classList.add('hidden')
@@ -662,7 +662,7 @@ function updateS24Display() {
     return
   }
 
-  // No taxable profit — show explainer instead of S24 result
+  // No taxable profit — show explainer instead
   const annualPropertyProfit = lastCalc.rent * 12 - lastCalc.monthlyCosts * 12
   if (annualPropertyProfit <= 0) {
     $('s24Result').classList.add('hidden')

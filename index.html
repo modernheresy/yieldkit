@@ -97,6 +97,23 @@
 
     <div class="flex flex-wrap gap-1.5 mt-4" id="pills"></div>
 
+    <!-- S24 toggle — visible to all, drives account creation for guests -->
+    <div class="mt-4 pt-4 flex items-center justify-between" style="border-top:1px solid rgba(255,255,255,.08)">
+      <div class="flex items-center gap-2.5 cursor-pointer select-none" onclick="s24CheckClick()">
+        <div id="s24CkBox" style="width:22px;height:22px;border-radius:6px;border:2px solid rgba(255,255,255,.25);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s">
+          <svg id="s24CkTick" width="11" height="9" viewBox="0 0 13 10" fill="none" style="display:none">
+            <path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <span class="text-[12px] font-semibold tracking-wide" style="color:rgba(255,255,255,.5)">Show after-tax</span>
+      </div>
+      <a href="/section24.html" id="s24EditLink" onclick="event.preventDefault(); navigateToS24()"
+        class="hidden items-center gap-1 px-2.5 h-6 rounded-md text-[11px] font-semibold tracking-wide transition-colors"
+        style="border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.07);color:rgba(255,255,255,.5)">
+        Edit
+      </a>
+    </div>
+
     <!-- Stress test link — shown once a deal is calculated -->
     <div id="stressLink" class="hidden mt-3">
       <a onclick="navigateToStress()" class="inline-flex items-center gap-1.5 text-[10px] font-semibold tracking-wide cursor-pointer transition-colors" style="color:rgba(255,255,255,.35)" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.35)'">
@@ -240,29 +257,6 @@
       </div>
       <div class="text-[10px] text-stone-400 mt-1.5 leading-relaxed">
         Insurance, maintenance, ground rent, service charges, etc.
-      </div>
-    </div>
-
-    <div class="sec-rule-light mt-5 mb-4"></div>
-
-        <!-- ─── Section 24 ─── -->
-    <div class="flex items-start gap-3.5">
-      <div class="s24-ck-box" id="s24CkBox" onclick="s24CheckClick()"
-        style="width:26px;height:26px;border-radius:7px;border:2px solid #C4BEB4;flex-shrink:0;margin-top:2px">
-        <svg id="s24CkTick" width="13" height="10" viewBox="0 0 13 10" fill="none" style="display:none">
-          <path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
-      </div>
-      <div class="min-w-0 flex-1">
-        <div class="flex items-center gap-2.5 flex-wrap">
-          <span class="text-[13px] font-semibold text-stone-700 tracking-tight">Section 24 Tax</span>
-          <a href="/section24.html" id="s24EditLink" onclick="event.preventDefault(); navigateToS24()"
-            class="hidden items-center gap-1 px-2.5 h-6 rounded-md text-[11px] font-semibold tracking-wide transition-colors"
-            style="border:1.5px solid rgba(14,4,32,.2);background:rgba(14,4,32,.05);color:#0E0420">
-            Edit
-          </a>
-          <span class="text-[11px] text-stone-500">After-tax cashflow · account feature</span>
-        </div>
       </div>
     </div>
 

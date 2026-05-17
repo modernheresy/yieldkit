@@ -30,6 +30,7 @@ function savePendingDeal(label) {
       void:    $('void').value,
       costs:   $('costs').value,
       mtype:   document.querySelector('input[name="mtype"]:checked').value,
+      term:    $('term').value,
       addSDLT: $('sdltCheck').checked,
     }
   }))
@@ -48,6 +49,7 @@ function restorePendingDeal() {
     $('agent').value   = fields.agent
     $('void').value    = fields.void
     $('costs').value   = fields.costs
+    if ($('term')) $('term').value = fields.term || 25
 
     const radio = document.querySelector(`input[name="mtype"][value="${fields.mtype}"]`)
     if (radio) radio.checked = true
@@ -249,6 +251,18 @@ $('sdltCheck').addEventListener('change', function() {
   $('ckTick').style.display    = this.checked ? 'block'   : 'none'
 })
 
+function updateTermState() {
+  const isIO = document.querySelector('input[name="mtype"]:checked').value === 'interest'
+  $('term').disabled = isIO
+  $('term').closest('.relative').style.opacity = isIO ? '0.4' : '1'
+}
+
+document.querySelectorAll('input[name="mtype"]').forEach(el =>
+  el.addEventListener('change', () => { updateTermState(); calc() })
+)
+
+updateTermState()
+
 function yieldMeta(y) {
   if (y < 4)  return { label:'Weak deal',       pct: Math.max(y/4*20, 2),       col:'#ef4444' }
   if (y < 6)  return { label:'Below average',   pct: 20 + (y-4)/2*20,           col:'#f97316' }
@@ -272,13 +286,14 @@ function calc() {
   const voidWks = +$('void').value    || 0
   const costs   = +$('costs').value   || 0
   const type    = document.querySelector('input[name="mtype"]:checked').value
+  const term    = +$('term').value    || 25
   const addSDLT = $('sdltCheck').checked
 
   const sdlt = calcSDLT(price)
   $('sdltAmt').textContent = price ? fmt(sdlt) + ' due on completion' : 'Enter price above'
   if (!price || !rent) return
 
-  const result = calcFromInputs({ price, deposit, rate, rent, agent, voidWks, costs, type, addSDLT })
+  const result = calcFromInputs({ price, deposit, rate, rent, agent, voidWks, costs, type, addSDLT, term })
   if (!result) return
 
   const { mtg, monthly, annual, gross, net, cashIn, loan, monthlyInterest, monthlyCosts } = result
@@ -480,6 +495,7 @@ async function loadDeal(id) {
     $('agent').value   = d.agent   || 10
     $('void').value    = d.voidWks || 2
     $('costs').value   = d.costs   || 150
+    if ($('term')) $('term').value = d.term || 25
 
     const radio = document.querySelector(`input[name="mtype"][value="${d.type || 'interest'}"]`)
     if (radio) radio.checked = true

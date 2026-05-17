@@ -145,24 +145,7 @@
       </div>
     </div>
 
-    <div class="grid grid-cols-2 gap-2.5 mb-3">
-      <div>
-        <label class="block text-xs font-semibold text-stone-600 mb-1.5">Deposit</label>
-        <div class="relative has-suf">
-          <input type="number" id="deposit" class="field-input" value="25">
-          <span class="sym sym-r">%</span>
-        </div>
-      </div>
-      <div>
-        <label class="block text-xs font-semibold text-stone-600 mb-1.5">Interest rate</label>
-        <div class="relative has-suf">
-          <input type="number" id="rate" class="field-input" value="5.0" step="0.1">
-          <span class="sym sym-r">%</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="mb-4">
+    <div class="mb-3">
       <label class="block text-xs font-semibold text-stone-600 mb-1.5">Mortgage type</label>
       <div class="grid grid-cols-2 gap-2">
         <input type="radio" name="mtype" id="io" value="interest" class="toggle-radio" checked>
@@ -173,6 +156,31 @@
         <label for="rep" class="toggle-lbl flex items-center justify-center h-12 rounded-[10px] border-[1.5px] border-[#DDD8CF] bg-cream text-[13px] font-medium text-stone-400 cursor-pointer select-none transition-all duration-150">
           Repayment
         </label>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-2 gap-2.5 mb-3">
+      <div>
+        <label class="block text-xs font-semibold text-stone-600 mb-1.5">Deposit</label>
+        <div class="relative has-suf">
+          <input type="number" id="deposit" class="field-input" value="25">
+          <span class="sym sym-r">%</span>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs font-semibold text-stone-600 mb-1.5">Term</label>
+        <div class="relative has-suf">
+          <input type="number" id="term" class="field-input" value="25" min="5" max="40">
+          <span class="sym sym-r">yrs</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mb-3">
+      <label class="block text-xs font-semibold text-stone-600 mb-1.5">Interest rate</label>
+      <div class="relative has-suf">
+        <input type="number" id="rate" class="field-input" value="5.0" step="0.1">
+        <span class="sym sym-r">%</span>
       </div>
     </div>
 

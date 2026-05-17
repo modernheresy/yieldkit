@@ -703,6 +703,16 @@ function updateS24Display() {
   const monthlyCost = isRange ? result.worstCase.s24ExtraMonthly : result.s24ExtraMonthly
   $('s24CostAmt').textContent = '−£' + Math.abs(Math.round(monthlyCost)).toLocaleString('en-GB') + '/mo'
 
+  // Update annual figure and yield bar to after-tax
+  const afterAnnual    = afterMonthly * 12
+  const afterNetYield  = afterAnnual / lastCalc.price * 100
+  $('mAnnual').textContent = fmt(afterAnnual)
+  const ym = yieldMeta(afterNetYield)
+  $('ybar').style.width      = ym.pct + '%'
+  $('ybar').style.background = ym.col
+  $('yRating').style.color   = ym.col
+  $('yRating').textContent   = ym.label + ' · ' + afterNetYield.toFixed(2) + '% after-tax yield'
+
   if (isRange) {
     $('s24RangeNote').classList.remove('hidden')
   } else {

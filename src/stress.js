@@ -420,6 +420,7 @@ function goBack() {
         void:    baseInputs.voidWks ?? 2,
         costs:   baseInputs.costs   ?? 150,
         mtype:   baseInputs.type    ?? 'interest',
+        term:    baseInputs.term    ?? 25,
         addSDLT: baseInputs.addSDLT ?? false,
       }
     }))
